@@ -1,0 +1,11 @@
+// src/components/ui/toast/useToast.ts
+import { useContext } from 'react';
+import { ToastContext } from './ToastContextObj';
+
+export function useToast() {
+  const context = useContext(ToastContext);
+  if (context === undefined) {
+    throw new Error('useToast must be used within a ToastProvider');
+  }
+  return context;
+}
