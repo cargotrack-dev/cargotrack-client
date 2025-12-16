@@ -1,7 +1,7 @@
 // src/App.tsx - Practical fix using your existing file structure
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from '@features/Auth';
+import { AuthProvider, useAuth } from './features/Auth';
 import { ToastProvider } from '@features/UI/components/ui/toast/ToastProvider';
 import Layout from '@features/Core/components/Layout';
 import Dashboard from '@features/Dashboard/components/DashboardLayout';
