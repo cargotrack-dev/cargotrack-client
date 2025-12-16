@@ -15,10 +15,10 @@ import { InvoiceList } from '@features/Invoices/pages/InvoiceList';
 import UserList from '@features/Admin/pages/UserList';
 import Settings from '@features/Settings/pages/Settings';
 import NotFound from '@features/Core/pages/NotFound';
-import Login from '@features/Auth/pages/Login';
-import UnauthorizedPage from '@features/Auth/pages/UnauthorizedPage';
+import Login from './features/Auth/pages/Login';
+import UnauthorizedPage from './features/Auth/pages/UnauthorizedPage';
 import { type ReactElement } from 'react';
-import { ResourceType, PermissionAction } from '@features/Auth/types/auth';
+import { ResourceType, PermissionAction } from './features/Auth/types/auth';
 
 // Protected route wrapper component
 const ProtectedRoute: React.FC<{
