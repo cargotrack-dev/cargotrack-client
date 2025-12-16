@@ -1,20 +1,15 @@
 import { defineConfig } from 'vite'
-import type { UserConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
-const config: UserConfig = {
+export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': path.resolve(__dirname, './src'),
+      '@features': path.resolve(__dirname, './src/features'),
+      '@Core': path.resolve(__dirname, './src/features/Core'),
+      '@UI': path.resolve(__dirname, './src/features/UI'),
     },
   },
-  server: {
-    host: '0.0.0.0',  // Allow connections from all network interfaces
-    port: 3001,       // Use port 3001
-    strictPort: true, // Fail if port is already in use
-  },
-}
-
-export default defineConfig(config)
+})
