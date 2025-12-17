@@ -1,7 +1,7 @@
 // 🔧 FIXED: TrackingService with correct type usage
 // File: src/features/Tracking/services/TrackingService.ts
 
-import { TrackingData, ShipmentStatus, StatusUpdate, SimpleLocation } from '@features/Shipments/types/shipment';
+import { TrackingData, ShipmentStatus, StatusUpdate, SimpleLocation } from '../../Shipments/types/shipment';
 import { v4 as uuidv4 } from 'uuid';
 
 // ✅ FIXED: Mock tracking data with correct SimpleLocation type

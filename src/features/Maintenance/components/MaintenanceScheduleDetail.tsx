@@ -3,17 +3,17 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useMaintenance } from '@features/Maintenance/contexts'; // ✅ FIXED: Correct import path
+import { useMaintenance } from '../../Maintenance/contexts'; // ✅ FIXED: Correct import path
 import { 
   Card, 
   CardContent, 
   CardHeader, 
   CardTitle 
-} from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Textarea } from '@features/UI/components/ui/textarea';
-import { Input } from '@features/UI/components/ui/input';
+} from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Badge } from '../../UI/components/ui/badge';
+import { Textarea } from '../../UI/components/ui/textarea';
+import { Input } from '../../UI/components/ui/input';
 import { 
   ChevronLeft, 
   Calendar,

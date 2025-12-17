@@ -11,10 +11,10 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from '@/features/UI/components/ui/table';
-import { Card, CardContent } from '@/features/UI/components/ui/card';
-import { Button } from '@/features/UI/components/ui/button';
-import { Badge } from '@/features/UI/components/ui/badge';
+} from '../../UI/components/ui/table';
+import { Card, CardContent } from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Badge } from '../../UI/components/ui/badge';
 import { 
   ExternalLink, 
   AlertTriangle,
@@ -34,7 +34,7 @@ import {
   ShipmentStatus, 
   STATUS_COLORS, 
   STATUS_LABELS 
-} from '@features/Shipments/types/shipment';
+} from '../../Shipments/types/shipment';
 
 // 🎯 LOCAL TYPE DEFINITIONS - Matches your actual coordinate structures
 interface CoordinatesCompat {

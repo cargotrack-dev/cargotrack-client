@@ -11,9 +11,9 @@ import {
   CardDescription,
   CardHeader,
   CardTitle
-} from '@features/UI/components/ui/card';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Button } from '@features/UI/components/ui/button';
+} from '../../UI/components/ui/card';
+import { Badge } from '../../UI/components/ui/badge';
+import { Button } from '../../UI/components/ui/button';
 import { 
   ArrowLeft, 
   Edit, 
@@ -34,7 +34,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger
-} from '@features/UI/components/ui/tabs';
+} from '../../UI/components/ui/tabs';
 import {
   Table,
   TableBody,
@@ -42,8 +42,8 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@features/UI/components/ui/table';
-import { Separator } from '@features/UI/components/ui/separator';
+} from '../../UI/components/ui/table';
+import { Separator } from '../../UI/components/ui/separator';
 import { format } from 'date-fns';
 
 interface CargoDetailsProps {

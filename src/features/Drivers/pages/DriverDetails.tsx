@@ -14,14 +14,14 @@ import {
   Edit,
   AlertTriangle
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@features/UI/components/ui/tabs';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@features/UI/components/ui/avatar';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@features/UI/components/ui/table';
-import { ResourceType, PermissionAction } from '@features/Core/types/auth';
-import PermissionGate from '@features/Core/auth/PermissionGate';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../UI/components/ui/tabs';
+import { Badge } from '../../UI/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '../../UI/components/ui/avatar';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../UI/components/ui/table';
+import { ResourceType, PermissionAction } from '../../Core/types/auth';
+import PermissionGate from '../../Core/auth/PermissionGate';
 
 // Define driver interface
 interface Driver {

@@ -1,15 +1,15 @@
 // src/components/invoices/InvoiceGenerator.tsx
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
-import { Label } from '@features/UI/components/ui/label';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@features/UI/components/ui/tabs';
-import { Alert, AlertDescription } from '@features/UI/components/ui/alert';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@features/UI/components/ui/dialog';
-import { DatePicker } from '@features/UI/components/ui/date-picker';
-import { Switch } from '@features/UI/components/ui/switch';
+import { Card, CardContent, CardHeader, CardTitle } from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
+import { Label } from '../../UI/components/ui/label';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../UI/components/ui/tabs';
+import { Alert, AlertDescription } from '../../UI/components/ui/alert';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../UI/components/ui/dialog';
+import { DatePicker } from '../../UI/components/ui/date-picker';
+import { Switch } from '../../UI/components/ui/switch';
 import {
   Save,
   FileText,
@@ -23,7 +23,7 @@ import {
   Eye,
   Layout
 } from 'lucide-react';
-import { useToast } from '@features/UI/components/ui/toast/useToast';
+import { useToast } from '../../UI/components/ui/toast/useToast';
 import { useInvoice } from '../hooks/useInvoice';
 import {
   Invoice,

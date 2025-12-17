@@ -7,9 +7,9 @@ import {
   CardContent,
   CardHeader,
   CardTitle
-} from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
-import { Badge } from '@features/UI/components/ui/badge';
+} from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Badge } from '../../UI/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -17,7 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@features/UI/components/ui/table';
+} from '../../UI/components/ui/table';
 import {
   ChevronLeft,
   Calendar,

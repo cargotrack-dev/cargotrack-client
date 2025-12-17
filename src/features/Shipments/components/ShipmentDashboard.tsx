@@ -7,7 +7,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@features/UI/components/ui/card';
+} from '../../UI/components/ui/card';
 import {
   Table,
   TableBody,
@@ -15,18 +15,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@features/UI/components/ui/table';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Button } from '@features/UI/components/ui/button';
+} from '../../UI/components/ui/table';
+import { Badge } from '../../UI/components/ui/badge';
+import { Button } from '../../UI/components/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@features/UI/components/ui/select';
-import { Input } from '@features/UI/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@features/UI/components/ui/tabs';
+} from '../../UI/components/ui/select';
+import { Input } from '../../UI/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../UI/components/ui/tabs';
 import {
   Truck,
   Package,

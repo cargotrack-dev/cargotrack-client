@@ -15,9 +15,9 @@ import {
   Fuel,
   BarChart2
 } from 'lucide-react';
-import { useAuth } from '@features/Core/hooks/useAuth';
-import { ResourceType, PermissionAction } from '@features/Core/types/auth';
-import PermissionGate from '@features/Core/auth/PermissionGate';
+import { useAuth } from '../../Core/hooks/useAuth';
+import { ResourceType, PermissionAction } from '../../Core/types/auth';
+import PermissionGate from '../../Core/auth/PermissionGate';
 
 interface Vehicle {
   id: string;

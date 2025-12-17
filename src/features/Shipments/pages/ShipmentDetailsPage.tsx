@@ -8,8 +8,8 @@ import {
   CardHeader, 
   CardTitle, 
   CardContent 
-} from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
+} from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 
 const ShipmentDetailsPage: React.FC = () => {

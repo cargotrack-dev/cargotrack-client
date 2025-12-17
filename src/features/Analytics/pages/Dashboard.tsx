@@ -1,7 +1,7 @@
 // src/features/Analytics/pages/Dashboard.tsx
 import React from 'react';
 import { Truck, FileText, DollarSign, AlertTriangle, Package, ArrowUp, ArrowDown } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/features/UI/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../../UI/components/ui/card';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, BarChart, Bar, Legend

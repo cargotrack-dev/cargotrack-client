@@ -11,19 +11,19 @@ import {
   ArrowLeft,
   Trash
 } from 'lucide-react';
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@features/UI/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@features/UI/components/ui/card';
-import { Textarea } from '@features/UI/components/ui/textarea';
-import { Checkbox } from '@features/UI/components/ui/checkbox';
-import { Label } from '@features/UI/components/ui/label';
+} from '../../UI/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../../UI/components/ui/card';
+import { Textarea } from '../../UI/components/ui/textarea';
+import { Checkbox } from '../../UI/components/ui/checkbox';
+import { Label } from '../../UI/components/ui/label';
 
 // Interface for waybill selection
 interface WaybillItem {

@@ -1,5 +1,5 @@
 // src/components/ui/buttonVariants.ts
-import { cn } from '@features/UI/lib/utils';
+import { cn } from '../../lib/utils';
 
 export interface ButtonVariantProps {
   variant?: 'default' | 'outline' | 'ghost';

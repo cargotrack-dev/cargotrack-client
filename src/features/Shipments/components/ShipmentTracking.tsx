@@ -8,11 +8,11 @@ import {
   CardTitle,
   CardDescription,
   CardFooter,
-} from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Separator } from '@features/UI/components/ui/separator';
-import { Progress } from '@features/UI/components/ui/progress';
+} from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Badge } from '../../UI/components/ui/badge';
+import { Separator } from '../../UI/components/ui/separator';
+import { Progress } from '../../UI/components/ui/progress';
 import {
   ArrowLeft,
   Truck,

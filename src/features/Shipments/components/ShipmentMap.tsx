@@ -1,9 +1,9 @@
 // src/components/tracking/ShipmentMap.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrackingData, ShipmentStatus, STATUS_COLORS, STATUS_LABELS } from '@features/Shipments/types/shipment';
-import { Card, CardContent } from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
+import { TrackingData, ShipmentStatus, STATUS_COLORS, STATUS_LABELS } from '../../Shipments/types/shipment';
+import { Card, CardContent } from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
 
 
 interface ShipmentMapProps {

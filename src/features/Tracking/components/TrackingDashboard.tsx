@@ -1,11 +1,11 @@
 // File: client/src/features/Tracking/components/TrackingDashboard.tsx
 
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
 import { Search, RefreshCw } from 'lucide-react';
-import { ShipmentMap } from '@features/Shipments/components/ShipmentMap';
+import { ShipmentMap } from '../../Shipments/components/ShipmentMap';
 
 // ✅ FIXED: Import from your existing types file
 import {
@@ -14,7 +14,7 @@ import {
   STATUS_COLORS,
   STATUS_LABELS,
   ShipmentPriority
-} from '@features/Shipments/types/shipment';  // or wherever your types file is located
+} from '../../Shipments/types/shipment';  // or wherever your types file is located
 
 export const TrackingDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');

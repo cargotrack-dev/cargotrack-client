@@ -1,17 +1,17 @@
 // src/components/trucks/TruckForm.tsx
 import React, { useState } from 'react';
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
-import { Label } from '@features/UI/components/ui/label';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
+import { Label } from '../../UI/components/ui/label';
 import { 
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@features/UI/components/ui/select';
+} from '../../UI/components/ui/select';
 import { Truck, User, MapPin } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@features/UI/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../../UI/components/ui/card';
 
 interface TruckFormProps {
   onSubmit: (data: TruckFormData) => void;

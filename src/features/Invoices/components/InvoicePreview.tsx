@@ -1,9 +1,9 @@
 // src/components/invoices/InvoicePreview.tsx
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
+import { Card, CardContent } from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
 import { Download, Printer } from 'lucide-react';
-import { useToast } from '@features/UI/components/ui/toast/useToast';
+import { useToast } from '../../UI/components/ui/toast/useToast';
 import { Invoice } from '../types/invoice';
 
 // Define the InvoiceTemplate interface

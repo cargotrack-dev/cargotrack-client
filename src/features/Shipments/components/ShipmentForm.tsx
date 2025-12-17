@@ -7,7 +7,7 @@ import {
     CardHeader,
     CardTitle,
     CardDescription,
-} from '@features/UI/components/ui/card';
+} from '../../UI/components/ui/card';
 import {
     Form,
     FormField,
@@ -16,26 +16,26 @@ import {
     FormControl,
     FormDescription,
     FormMessage
-} from '@features/UI/components/ui/form';
-import { Input } from '@features/UI/components/ui/input';
-import { Button } from '@features/UI/components/ui/button';
-import { Textarea } from '@features/UI/components/ui/textarea';
+} from '../../UI/components/ui/form';
+import { Input } from '../../UI/components/ui/input';
+import { Button } from '../../UI/components/ui/button';
+import { Textarea } from '../../UI/components/ui/textarea';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue
-} from '@features/UI/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@features/UI/components/ui/tabs';
-import { Separator } from '@features/UI/components/ui/separator';
-import { Alert, AlertDescription } from '@features/UI/components/ui/alert';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Checkbox } from '@features/UI/components/ui/checkbox';
+} from '../../UI/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../UI/components/ui/tabs';
+import { Separator } from '../../UI/components/ui/separator';
+import { Alert, AlertDescription } from '../../UI/components/ui/alert';
+import { Badge } from '../../UI/components/ui/badge';
+import { Checkbox } from '../../UI/components/ui/checkbox';
 import {
     Cargo,
     CargoStatus
-} from '@features/Cargo/types/cargo';
+} from '../../Cargo/types/cargo';
 import {
     Shipment,
     ShipmentStatus,
@@ -55,8 +55,8 @@ import {
     User,
     Route
 } from 'lucide-react';
-import { Label } from '@features/UI/components/ui/label';
-import CargoService from '@features/Cargo/services/CargoService';
+import { Label } from '../../UI/components/ui/label';
+import CargoService from '../../Cargo/services/CargoService';
 
 // Mock driver and vehicle data
 const mockDrivers: ShipmentDriver[] = [

@@ -10,28 +10,28 @@ import {
   Globe
 } from 'lucide-react';
 
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
-import { Label } from '@features/UI/components/ui/label';
-import { Textarea } from '@features/UI/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@features/UI/components/ui/radio-group';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@features/UI/components/ui/tabs';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
+import { Label } from '../../UI/components/ui/label';
+import { Textarea } from '../../UI/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '../../UI/components/ui/radio-group';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../UI/components/ui/tabs';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription
-} from '@features/UI/components/ui/card';
-import { Checkbox } from '@features/UI/components/ui/checkbox';
-import { Badge } from '@features/UI/components/ui/badge';
+} from '../../UI/components/ui/card';
+import { Checkbox } from '../../UI/components/ui/checkbox';
+import { Badge } from '../../UI/components/ui/badge';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@features/UI/components/ui/select';
+} from '../../UI/components/ui/select';
 import {
   Table,
   TableBody,
@@ -39,7 +39,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@features/UI/components/ui/table';
+} from '../../UI/components/ui/table';
 
 // Types
 interface ApiKey {

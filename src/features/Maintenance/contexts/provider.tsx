@@ -5,7 +5,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { MaintenanceContext } from './context';
 import { MaintenanceRecord, MaintenanceTask, MaintenanceStatus, MaintenanceType } from './types';
 import { MaintenanceSchedule, MaintenanceReminder, MaintenanceHistory, MaintenanceScheduleDetailed, MaintenancePriority } from '../types/maintenance';
-import { useToast } from '@features/UI/components/ui/toast/useToast';
+import { useToast } from '../../UI/components/ui/toast/useToast';
 
 // Helper function to generate unique IDs
 const generateId = (): string => {

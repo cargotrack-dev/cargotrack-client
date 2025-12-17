@@ -7,7 +7,7 @@ import {
   TrackingEvent,
   Location
 } from './types';
-import { useToast } from '@features/UI/components/ui/toast/useToast';
+import { useToast } from '../../UI/components/ui/toast/useToast';
 
 // Helper function to generate unique IDs
 const generateId = (): string => {

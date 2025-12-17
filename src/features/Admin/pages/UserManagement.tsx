@@ -4,17 +4,17 @@ import {
   Users, Search, Plus, Edit, Trash, UserPlus,
   UserX, Lock, Mail, UserCheck
 } from 'lucide-react';
-import { Button } from '@/features/UI/components/ui/button';
-import { Input } from '@/features/UI/components/ui/input';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/features/UI/components/ui/select';
-import { Card, CardContent } from '@/features/UI/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/features/UI/components/ui/tabs';
+} from '../../UI/components/ui/select';
+import { Card, CardContent } from '../../UI/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../UI/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -22,20 +22,20 @@ import {
   DialogTitle,
   DialogFooter,
   DialogTrigger,
-} from '@/features/UI/components/ui/dialog';
+} from '../../UI/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from '@/features/UI/components/ui/dropdown-menu';
-import { Checkbox } from '@/features/UI/components/ui/checkbox';
-import { Label } from '@/features/UI/components/ui/label';
-import { Avatar, AvatarFallback, AvatarImage } from '@/features/UI/components/ui/avatar';
-import { Badge } from '@/features/UI/components/ui/badge';
-import { Switch } from '@/features/UI/components/ui/switch';
-import { Textarea } from '@/features/UI/components/ui/textarea';
+} from '../../UI/components/ui/dropdown-menu';
+import { Checkbox } from '../../UI/components/ui/checkbox';
+import { Label } from '../../UI/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '../../UI/components/ui/avatar';
+import { Badge } from '../../UI/components/ui/badge';
+import { Switch } from '../../UI/components/ui/switch';
+import { Textarea } from '../../UI/components/ui/textarea';
 
 // Types
 interface User {

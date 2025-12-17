@@ -1,14 +1,14 @@
 // src/components/client/QuoteBuilder.tsx
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
-import { Label } from '@features/UI/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@features/UI/components/ui/select';
-import { Checkbox } from '@features/UI/components/ui/checkbox';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Separator } from '@features/UI/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@features/UI/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
+import { Label } from '../../UI/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../UI/components/ui/select';
+import { Checkbox } from '../../UI/components/ui/checkbox';
+import { Badge } from '../../UI/components/ui/badge';
+import { Separator } from '../../UI/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../UI/components/ui/tabs';
 import {
   Truck,
   Package,

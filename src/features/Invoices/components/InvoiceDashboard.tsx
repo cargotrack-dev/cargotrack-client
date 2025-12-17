@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useInvoice } from '../hooks/useInvoice';
-import { Card, CardContent, CardHeader, CardTitle } from '@features/UI/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@features/UI/components/ui/tabs';
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
-import { Badge } from '@features/UI/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '../../UI/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../UI/components/ui/tabs';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
+import { Badge } from '../../UI/components/ui/badge';
 import { 
   Search, 
   FileText, 

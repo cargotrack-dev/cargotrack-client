@@ -2,7 +2,7 @@
 // src/services/mockTrackingService.ts
 
 // ✅ FIXED: Import from unified types instead of separate tracking types
-import { TrackingData, ShipmentStatus, StatusUpdate, SimpleLocation, ShipmentPriority } from '@features/Shipments/types/shipment';
+import { TrackingData, ShipmentStatus, StatusUpdate, SimpleLocation, ShipmentPriority } from '../../Shipments/types/shipment';
 
 // ✅ FIXED: Use SimpleLocation for tracking compatibility
 const generateNearbyLocation = (baseLat: number, baseLng: number): SimpleLocation => {

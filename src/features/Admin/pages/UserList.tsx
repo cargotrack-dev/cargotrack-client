@@ -1,8 +1,8 @@
 // src/pages/users/UserList.tsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserRole } from '@/features/Auth/types/auth';
-//import { User } from '@/features/Auth/types/auth';
+import { UserRole } from '../../Auth/types/auth';
+//import { User } from '../../Auth/types/auth';
 
 // You'll likely have a user type defined in your types
 interface User {

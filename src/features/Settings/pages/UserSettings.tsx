@@ -36,7 +36,7 @@ import {
   Devices as DevicesIcon
 } from '@mui/icons-material';
 import { apiClient } from '../services/api/apiClient';
-import { useAuth } from '@features/Auth/hooks/useAuth';
+import { useAuth } from '../../Auth/hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { CustomGrid as Grid } from '../components/CustomGrid';
 

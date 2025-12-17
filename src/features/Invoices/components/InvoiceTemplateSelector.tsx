@@ -1,12 +1,12 @@
 // src/components/invoices/InvoiceTemplateSelector.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@features/UI/components/ui/radio-group';
-import { Label } from '@features/UI/components/ui/label';
+import { Card, CardContent } from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { RadioGroup, RadioGroupItem } from '../../UI/components/ui/radio-group';
+import { Label } from '../../UI/components/ui/label';
 import { Eye, Plus, Check } from 'lucide-react';
-import { useToast } from '@features/UI/components/ui/toast/useToast';
+import { useToast } from '../../UI/components/ui/toast/useToast';
 import { InvoiceTemplate } from '../types/invoice-templates';
 
 interface InvoiceTemplateSelectorProps {

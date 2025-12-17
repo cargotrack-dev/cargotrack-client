@@ -1,11 +1,11 @@
 // src/features/Clients/pages/ClientDashboard.tsx
 import React, { useState } from 'react';
-import { Card } from '@/features/UI/components/ui/card';
+import { Card } from '../../UI/components/ui/card';
 import { useClients } from '../hooks/useClients';
-import { Button } from '@/features/UI/components/ui/button';
+import { Button } from '../../UI/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Input } from '@/features/UI/components/ui/input';
-import { Tabs, TabsList, TabsTrigger } from '@/features/UI/components/ui/tabs';
+import { Input } from '../../UI/components/ui/input';
+import { Tabs, TabsList, TabsTrigger } from '../../UI/components/ui/tabs';
 
 const ClientDashboard: React.FC = () => {
   const { clients, loading } = useClients();

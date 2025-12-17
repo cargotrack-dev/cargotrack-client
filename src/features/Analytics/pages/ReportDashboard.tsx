@@ -1,9 +1,9 @@
 // src/features/Analytics/pages/ReportDashboard.tsx
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/features/UI/components/ui/card';
-import { Button } from '@/features/UI/components/ui/button';
-import { Input } from '@/features/UI/components/ui/input';
-import { Tabs, TabsList, TabsTrigger } from '@/features/UI/components/ui/tabs';
+import { Card } from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
+import { Tabs, TabsList, TabsTrigger } from '../../UI/components/ui/tabs';
 import { formatDate } from '../utils/chartUtils';
 
 interface ReportData {

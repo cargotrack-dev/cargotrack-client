@@ -5,11 +5,11 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   Cell
 } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/features/UI/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/UI/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/UI/components/ui/select';
-import { DateRangePicker } from '@/features/UI/components/ui/date-range-picker';
-import { Button } from '@/features/UI/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../UI/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../UI/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../UI/components/ui/select';
+import { DateRangePicker } from '../../UI/components/ui/date-range-picker';
+import { Button } from '../../UI/components/ui/button';
 import { Download, RefreshCw } from 'lucide-react';
 
 // Mock data for demonstration

@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import { ShipmentList } from '../components/ShipmentList';
 import { useShipments } from '../hooks/useShipments';
-import { Card, CardHeader, CardTitle, CardContent } from '@features/UI/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@features/UI/components/ui/select';
-import { Input } from '@features/UI/components/ui/input';
+import { Card, CardHeader, CardTitle, CardContent } from '../../UI/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../UI/components/ui/select';
+import { Input } from '../../UI/components/ui/input';
 
 // ✅ FIXED: Import from unified types instead of module-specific types
 import { 
@@ -13,10 +13,10 @@ import {
   TrackingData, 
   StatusUpdate, 
   SimpleLocation,
-} from '@features/Shipments/types/shipment';
+} from '../../Shipments/types/shipment';
 
 // ✅ FIXED: Import Shipment from shipments module (if needed)
-import { Shipment } from '@features/Shipments/types/shipment';
+import { Shipment } from '../../Shipments/types/shipment';
 
 interface ShipmentFilters {
   status?: string;

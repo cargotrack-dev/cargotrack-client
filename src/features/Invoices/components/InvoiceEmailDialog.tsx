@@ -7,11 +7,11 @@ import {
   DialogTitle, 
   DialogDescription, 
   DialogFooter 
-} from '@features/UI/components/ui/dialog';
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
-import { Label } from '@features/UI/components/ui/label';
-import { Switch } from '@features/UI/components/ui/switch';
+} from '../../UI/components/ui/dialog';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
+import { Label } from '../../UI/components/ui/label';
+import { Switch } from '../../UI/components/ui/switch';
 import { Send, Paperclip, X } from 'lucide-react';
 import { Invoice, EmailData } from '../types/invoice';
 import { isValidEmail } from '../utils/invoiceUtils';

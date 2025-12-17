@@ -10,26 +10,26 @@ import {
 } from 'lucide-react';
 
 // UI Components
-import { Input } from '@features/UI/components/ui/input';
-import { Label } from '@features/UI/components/ui/label';
-import { Textarea } from '@features/UI/components/ui/textarea';
-import { Checkbox } from '@features/UI/components/ui/checkbox';
-import { Button } from '@features/UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
+import { Label } from '../../UI/components/ui/label';
+import { Textarea } from '../../UI/components/ui/textarea';
+import { Checkbox } from '../../UI/components/ui/checkbox';
+import { Button } from '../../UI/components/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@features/UI/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@features/UI/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@features/UI/components/ui/tabs';
+} from '../../UI/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '../../UI/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../UI/components/ui/tabs';
 
 // Types & Schema
-import { WaybillFormData, WaybillFormProps } from '@features/Waybills/types/types';
+import { WaybillFormData, WaybillFormProps } from '../../Waybills/types/types';
 import { Save, Copy } from 'lucide-react';
-import { useToast } from '@features/UI/components/ui/toast/useToast';
-import { Toaster } from '@features/UI/components/ui/toast/Toaster';
+import { useToast } from '../../UI/components/ui/toast/useToast';
+import { Toaster } from '../../UI/components/ui/toast/Toaster';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 type NestedRecord = Record<string, unknown | Record<string, unknown>>;

@@ -34,7 +34,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { subDays, format } from 'date-fns';
-import { apiClient } from '@features/Invoices/services/api/apiClient';
+import { apiClient } from '../../Invoices/services/api/apiClient';
 
 // Create a custom Grid component to work around TypeScript issues
 interface GridProps {

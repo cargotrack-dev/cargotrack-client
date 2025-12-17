@@ -7,16 +7,16 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@features/UI/components/ui/card';
+} from '../../UI/components/ui/card';
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@features/UI/components/ui/tabs';
-import { Button } from '@features/UI/components/ui/button';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Separator } from '@features/UI/components/ui/separator';
+} from '../../UI/components/ui/tabs';
+import { Button } from '../../UI/components/ui/button';
+import { Badge } from '../../UI/components/ui/badge';
+import { Separator } from '../../UI/components/ui/separator';
 import {
   Table,
   TableBody,
@@ -24,7 +24,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@features/UI/components/ui/table';
+} from '../../UI/components/ui/table';
 import {
   Truck as TruckIcon,
   Package,
@@ -47,10 +47,10 @@ import {
   Mail
 } from 'lucide-react';
 import { Shipment } from '../types/shipment';
-import { StatusUpdate } from '@features/Tracking/types/tracking';
+import { StatusUpdate } from '../../Tracking/types/tracking';
 import ShipmentService from '../services/ShipmentService';
 import ShipmentStatusBadge from './ShipmentStatusBadge';
-import { useAuth } from '@features/Auth/hooks/useAuth';
+import { useAuth } from '../../Auth/hooks/useAuth';
 
 
 // Define the document type

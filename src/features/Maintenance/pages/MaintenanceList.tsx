@@ -2,10 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 // Remove react-toastify import
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@features/UI/components/ui/dialog';
-import { Button } from '@features/UI/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../UI/components/ui/dialog';
+import { Button } from '../../UI/components/ui/button';
 // Remove Spinner import
-import { Badge } from '@features/UI/components/ui/badge';
+import { Badge } from '../../UI/components/ui/badge';
 // Import existing utils or create simple formatters
 import { format } from 'date-fns';
 

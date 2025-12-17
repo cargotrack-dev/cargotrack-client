@@ -13,14 +13,14 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@features/UI/components/ui/table';
+} from '../../UI/components/ui/table';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle
-} from '@features/UI/components/ui/card';
+} from '../../UI/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,16 +28,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger
-} from '@features/UI/components/ui/dropdown-menu';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
+} from '../../UI/components/ui/dropdown-menu';
+import { Badge } from '../../UI/components/ui/badge';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger
-} from '@features/UI/components/ui/select';
+} from '../../UI/components/ui/select';
 import { 
   Edit, 
   FileText, 

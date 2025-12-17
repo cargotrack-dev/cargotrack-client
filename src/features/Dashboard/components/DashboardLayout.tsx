@@ -19,9 +19,9 @@ import {
   UserCheck,
   FileBarChart
 } from 'lucide-react';
-import { useAuth } from '@features/Core/hooks/useAuth';
-import { ResourceType, PermissionAction, UserRole } from '@features/Core/types/auth';
-import PermissionGate from '@features/Core/auth/PermissionGate';
+import { useAuth } from '../../Core/hooks/useAuth';
+import { ResourceType, PermissionAction, UserRole } from '../../Core/types/auth';
+import PermissionGate from '../../Core/auth/PermissionGate';
 
 interface MenuItem {
   name: string;

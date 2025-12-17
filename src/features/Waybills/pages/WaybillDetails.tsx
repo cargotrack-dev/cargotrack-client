@@ -6,9 +6,9 @@ import {
     DollarSign, Clock, ArrowLeft, Printer, Edit,
     File, Send, CheckCircle, XCircle, AlignRight
 } from 'lucide-react';
-import { Button } from '@features/UI/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@features/UI/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@features/UI/components/ui/tabs';
+import { Button } from '../../UI/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../../UI/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../UI/components/ui/tabs';
 import {
     WaybillDocument,
     WaybillStatus,

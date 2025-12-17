@@ -5,16 +5,16 @@ import {
   FileText, Plus, Filter, Download, Truck, 
   Calendar, Users, MapPin, Search, MoreHorizontal
 } from 'lucide-react';
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
 import { 
   Select, 
   SelectContent, 
   SelectItem, 
   SelectTrigger, 
   SelectValue 
-} from '@features/UI/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@features/UI/components/ui/card';
+} from '../../UI/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '../../UI/components/ui/card';
 
 // Mock data - replace with API call
 const mockWaybills = [

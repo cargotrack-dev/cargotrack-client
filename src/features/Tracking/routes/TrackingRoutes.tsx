@@ -1,9 +1,9 @@
 // src/routes/TrackingRoutes.tsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { TrackingProvider } from '@features/Tracking/contexts/provider'; // Updated import path
-import { TrackingDashboard } from '@features/Tracking/components/TrackingDashboard';
-import ShipmentDetail from '@features/Shipments/components/ShipmentDetails';
+import { TrackingProvider } from '../../Tracking/contexts/provider'; // Updated import path
+import { TrackingDashboard } from '../../Tracking/components/TrackingDashboard';
+import ShipmentDetail from '../../Shipments/components/ShipmentDetails';
 
 export const TrackingRoutes: React.FC = () => {
   return (

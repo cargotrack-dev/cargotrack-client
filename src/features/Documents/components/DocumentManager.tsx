@@ -1,11 +1,11 @@
 // src/features/Documents/components/DocumentManager.tsx
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@features/UI/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@features/UI/components/ui/tabs';
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@features/UI/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../UI/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../UI/components/ui/tabs';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
+import { Badge } from '../../UI/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../UI/components/ui/table';
 import {
   FileText,
   Download,

@@ -1,12 +1,12 @@
 // src/features/Admin/pages/RoleManagement.tsx
 import React, { useState, useEffect } from 'react';
 // UI Component imports
-import { Button } from '@/features/UI/components/ui/button';
-import { Input } from '@/features/UI/components/ui/input';
-import { Card } from '@/features/UI/components/ui/card';
-import { Table } from '@/features/UI/components/ui/table';
-import { Checkbox } from '@/features/UI/components/ui/checkbox';
-import { Dialog } from '@/features/UI/components/ui/dialog';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
+import { Card } from '../../UI/components/ui/card';
+import { Table } from '../../UI/components/ui/table';
+import { Checkbox } from '../../UI/components/ui/checkbox';
+import { Dialog } from '../../UI/components/ui/dialog';
 
 interface Role {
   id: string;

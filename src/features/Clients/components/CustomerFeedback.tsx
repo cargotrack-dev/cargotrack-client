@@ -1,11 +1,11 @@
 // src/components/client/CustomerFeedback.tsx
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
-import { Textarea } from '@features/UI/components/ui/textarea';
-import { Label } from '@features/UI/components/ui/label';
-import { Input } from '@features/UI/components/ui/input';
-import { Badge } from '@features/UI/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Textarea } from '../../UI/components/ui/textarea';
+import { Label } from '../../UI/components/ui/label';
+import { Input } from '../../UI/components/ui/input';
+import { Badge } from '../../UI/components/ui/badge';
 import { 
   Star, 
   ThumbsUp, 

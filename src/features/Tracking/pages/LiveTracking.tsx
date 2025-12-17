@@ -6,23 +6,23 @@ import {
   Info, AlertCircle, Clock,
   Phone, Navigation
 } from 'lucide-react';
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@features/UI/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@features/UI/components/ui/card';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@features/UI/components/ui/tabs';
+} from '../../UI/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '../../UI/components/ui/card';
+import { Badge } from '../../UI/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../UI/components/ui/tabs';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@features/UI/components/ui/popover';
+} from '../../UI/components/ui/popover';
 
 
 // Mock data interface

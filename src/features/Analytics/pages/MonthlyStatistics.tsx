@@ -11,15 +11,15 @@ import {
   Download,
   Filter
 } from 'lucide-react';
-import { Button } from '@/features/UI/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/features/UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../../UI/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/features/UI/components/ui/select';
+} from '../../UI/components/ui/select';
 import {
   AreaChart,
   Area,

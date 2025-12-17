@@ -8,7 +8,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@features/UI/components/ui/card';
+} from '../../UI/components/ui/card';
 import {
   Form,
   FormControl,
@@ -17,18 +17,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@features/UI/components/ui/form';
-import { Input } from '@features/UI/components/ui/input';
-import { Button } from '@features/UI/components/ui/button';
-import { Textarea } from '@features/UI/components/ui/textarea';
+} from '../../UI/components/ui/form';
+import { Input } from '../../UI/components/ui/input';
+import { Button } from '../../UI/components/ui/button';
+import { Textarea } from '../../UI/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@features/UI/components/ui/select';
-import { Separator } from '@features/UI/components/ui/separator';
+} from '../../UI/components/ui/select';
+import { Separator } from '../../UI/components/ui/separator';
 import { 
   ArrowLeft, 
   RefreshCw, 

@@ -9,7 +9,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@features/UI/components/ui/card';
+} from '../../UI/components/ui/card';
 import {
   Table,
   TableBody,
@@ -17,17 +17,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@features/UI/components/ui/table';
-import { Input } from '@features/UI/components/ui/input';
-import { Button } from '@features/UI/components/ui/button';
-import { Checkbox } from '@features/UI/components/ui/checkbox';
+} from '../../UI/components/ui/table';
+import { Input } from '../../UI/components/ui/input';
+import { Button } from '../../UI/components/ui/button';
+import { Checkbox } from '../../UI/components/ui/checkbox';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@features/UI/components/ui/select';
+} from '../../UI/components/ui/select';
 import {
   ArrowLeft,
   RefreshCw,

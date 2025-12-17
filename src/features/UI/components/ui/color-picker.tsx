@@ -2,9 +2,9 @@
 "use client";
 
 import * as React from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "@features/UI/components/ui/popover";
-import { cn } from "@features/UI/lib/utils";
-import { Button } from "@features/UI/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
+import { cn } from "../../lib/utils";
+import { Button } from "../../components/ui/button";
 import { Check } from "lucide-react";
 
 interface ColorPickerProps {

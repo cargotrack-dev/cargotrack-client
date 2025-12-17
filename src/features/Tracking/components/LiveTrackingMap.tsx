@@ -4,8 +4,8 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 import { Icon, LatLngBoundsExpression, LatLngTuple } from 'leaflet';
 import { io } from 'socket.io-client';
-import { Shipment } from '@features/Shipments/types/shipment';
-import { Card, CardContent, CardHeader, CardTitle } from '@features/UI/components/ui/card';
+import { Shipment } from '../../Shipments/types/shipment';
+import { Card, CardContent, CardHeader, CardTitle } from '../../UI/components/ui/card';
 import { Truck, Calendar, Clock } from 'lucide-react';
 
 // Custom truck icon for the map

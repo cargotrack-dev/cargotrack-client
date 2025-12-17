@@ -1,11 +1,11 @@
 // src/routes/MaintenanceRoutes.tsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { MaintenanceProvider } from '@features/Maintenance/contexts/provider'; // Updated import path
-import MaintenanceDashboard from '@features/Maintenance/components/MaintenanceDashboard';
-import MaintenanceScheduleDetail from '@features/Maintenance/components/MaintenanceScheduleDetail';
-import MaintenanceScheduleForm from '@features/Maintenance/components/MaintenanceScheduleForm';
-import MaintenanceHistory from '@features/Maintenance/components/MaintenanceHistory';
+import { MaintenanceProvider } from '../../Maintenance/contexts/provider'; // Updated import path
+import MaintenanceDashboard from '../../Maintenance/components/MaintenanceDashboard';
+import MaintenanceScheduleDetail from '../../Maintenance/components/MaintenanceScheduleDetail';
+import MaintenanceScheduleForm from '../../Maintenance/components/MaintenanceScheduleForm';
+import MaintenanceHistory from '../../Maintenance/components/MaintenanceHistory';
 
 export const MaintenanceRoutes: React.FC = () => {
   return (

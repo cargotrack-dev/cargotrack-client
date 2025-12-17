@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@features/UI/components/ui/card';
-import { Separator } from '@features/UI/components/ui/separator';
+import { Card, CardContent } from '../../UI/components/ui/card';
+import { Separator } from '../../UI/components/ui/separator';
 import { Truck } from '../types/truck.types';
 import { getTruckById } from '../services/truckService';
 

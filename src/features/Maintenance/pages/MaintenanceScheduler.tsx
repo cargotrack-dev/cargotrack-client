@@ -12,17 +12,17 @@ import {
   Edit,
   Printer // Add Printer icon
 } from 'lucide-react';
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@features/UI/components/ui/select';
-import { Card, CardContent, CardHeader } from '@features/UI/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '@features/UI/components/ui/tabs';
+} from '../../UI/components/ui/select';
+import { Card, CardContent, CardHeader } from '../../UI/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '../../UI/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -30,9 +30,9 @@ import {
   DialogTitle,
   DialogFooter,
   DialogTrigger,
-} from '@features/UI/components/ui/dialog';
-import { Textarea } from '@features/UI/components/ui/textarea';
-import { Label } from '@features/UI/components/ui/label';
+} from '../../UI/components/ui/dialog';
+import { Textarea } from '../../UI/components/ui/textarea';
+import { Label } from '../../UI/components/ui/label';
 
 // Types
 interface MaintenanceRecord {

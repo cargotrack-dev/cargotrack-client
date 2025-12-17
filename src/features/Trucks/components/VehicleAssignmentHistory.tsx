@@ -6,9 +6,9 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from '@features/UI/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '@features/UI/components/ui/card';
-import { Badge } from '@features/UI/components/ui/badge';
+} from '../../UI/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '../../UI/components/ui/card';
+import { Badge } from '../../UI/components/ui/badge';
 import { 
   Calendar, 
   User, 

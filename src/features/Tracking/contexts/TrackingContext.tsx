@@ -3,7 +3,7 @@
 import React, { createContext, useState, useCallback, ReactNode } from 'react';
 
 // ✅ FIXED: Import from unified types
-import { TrackingData, ShipmentStatus } from '@features/Shipments/types/shipment';
+import { TrackingData, ShipmentStatus } from '../../Shipments/types/shipment';
 
 // Import the service from its correct location
 import TrackingService from '../services/TrackingService';

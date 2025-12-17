@@ -1,6 +1,6 @@
 // src/components/shipment/ShipmentStatusBadge.tsx
 import React from 'react';
-import { Badge } from '@features/UI/components/ui/badge';
+import { Badge } from '../../UI/components/ui/badge';
 import { ShipmentStatus } from '../types/shipment';
 import {
   Truck, 

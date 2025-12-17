@@ -1,8 +1,8 @@
 // src/services/ShipmentService.ts
 import { Shipment, ShipmentStatus } from "../types/shipment";
 import { v4 as uuidv4 } from 'uuid';
-import CargoService from "@features/Cargo/services/CargoService";
-import { CargoStatus } from "@features/Cargo/types/cargo";
+import CargoService from "../../Cargo/services/CargoService";
+import { CargoStatus } from "../../Cargo/types/cargo";
 
 // Mock user for created/updated by fields
 const CURRENT_USER = "john.doe";

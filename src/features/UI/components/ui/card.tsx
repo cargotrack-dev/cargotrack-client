@@ -1,7 +1,7 @@
 "use client"
 // src/features/UI/components/ui/card.tsx
 import React from 'react';
-import { cn } from "@features/UI/lib/utils"
+import { cn } from "../../lib/utils"
 
 export const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = '', ...props }) => {
   return (

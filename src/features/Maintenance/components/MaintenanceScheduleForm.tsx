@@ -3,24 +3,24 @@
 
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useMaintenance } from '@features/Maintenance/contexts'; // ✅ FIXED: Correct import path
+import { useMaintenance } from '../../Maintenance/contexts'; // ✅ FIXED: Correct import path
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle
-} from '@features/UI/components/ui/card';
-import { Input } from '@features/UI/components/ui/input';
-import { Textarea } from '@features/UI/components/ui/textarea';
-import { Label } from '@features/UI/components/ui/label';
-import { Button } from '@features/UI/components/ui/button';
+} from '../../UI/components/ui/card';
+import { Input } from '../../UI/components/ui/input';
+import { Textarea } from '../../UI/components/ui/textarea';
+import { Label } from '../../UI/components/ui/label';
+import { Button } from '../../UI/components/ui/button';
 import {
     Tabs,
     TabsList,
     TabsTrigger,
     TabsContent
-} from '@features/UI/components/ui/tabs';
-import { Checkbox } from '@features/UI/components/ui/checkbox';
+} from '../../UI/components/ui/tabs';
+import { Checkbox } from '../../UI/components/ui/checkbox';
 import {
     ChevronLeft,
     Calendar,
@@ -39,7 +39,7 @@ import {
     MAINTENANCE_PRIORITY_LABELS,
     MAINTENANCE_TYPE_LABELS
 } from '../types/maintenance';
-import { Alert, AlertDescription } from '@features/UI/components/ui/alert';
+import { Alert, AlertDescription } from '../../UI/components/ui/alert';
 
 // ✅ FIXED: Properly typed interfaces
 interface TaskTemplate {

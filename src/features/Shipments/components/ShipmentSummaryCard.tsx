@@ -1,9 +1,9 @@
 // src/components/shipment/ShipmentSummaryCard.tsx
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@features/UI/components/ui/card';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Button } from '@features/UI/components/ui/button';
-import { Separator } from '@features/UI/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../UI/components/ui/card';
+import { Badge } from '../../UI/components/ui/badge';
+import { Button } from '../../UI/components/ui/button';
+import { Separator } from '../../UI/components/ui/separator';
 import { 
   CalendarClock, 
   Package, 
@@ -46,7 +46,7 @@ const formatCurrency = (amount: number, currency: string = 'USD'): string => {
   }).format(amount);
 };
 
-// ✅ FIXED: Define location interfaces locally since @features/Core imports don't exist
+// ✅ FIXED: Define location interfaces locally since ../../Core imports don't exist
 interface ShipmentLocation {
   address: string;
   city: string;

@@ -1,10 +1,10 @@
 // src/components/ui/date-range-picker.tsx
 // ✅ FIXED: Removed missing formatDate import
 import React from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from '@features/UI/components/ui/popover';
-import { Button } from '@features/UI/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
+import { Button } from '../../components/ui/button';
 import { Calendar } from 'lucide-react';
-import { cn } from '@features/UI/lib/utils';
+import { cn } from '../../lib/utils';
 
 interface DateRangePickerProps {
   from: Date;

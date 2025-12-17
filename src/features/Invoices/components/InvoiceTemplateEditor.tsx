@@ -5,14 +5,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { InvoiceTemplate, TemplateSection, createDefaultTemplate } from '../types/invoice-templates';
 import { Invoice } from '../types/invoice';
 // UI components
-import { Card, CardContent, CardHeader, CardTitle } from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
-import { Input } from '@features/UI/components/ui/input';
-import { Textarea } from '@features/UI/components/ui/textarea';
-import { Label } from '@features/UI/components/ui/label';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@features/UI/components/ui/tabs';
-import { Switch } from '@features/UI/components/ui/switch';
-import { Alert, AlertDescription } from '@features/UI/components/ui/alert';
+import { Card, CardContent, CardHeader, CardTitle } from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Input } from '../../UI/components/ui/input';
+import { Textarea } from '../../UI/components/ui/textarea';
+import { Label } from '../../UI/components/ui/label';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../UI/components/ui/tabs';
+import { Switch } from '../../UI/components/ui/switch';
+import { Alert, AlertDescription } from '../../UI/components/ui/alert';
 // Icons
 import {
   Save,
@@ -29,7 +29,7 @@ import {
   Palette
 } from 'lucide-react';
 // Services and utilities
-import { useToast } from '@features/UI/components/ui/toast/useToast';
+import { useToast } from '../../UI/components/ui/toast/useToast';
 import InvoiceTemplateService from '../services/InvoiceTemplateService';
 
 // Mock for PDF generator

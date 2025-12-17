@@ -7,11 +7,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@features/UI/components/ui/tabs';
-import { Separator } from '@features/UI/components/ui/separator';
+} from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Badge } from '../../UI/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../UI/components/ui/tabs';
+import { Separator } from '../../UI/components/ui/separator';
 import {
   ArrowLeft,
   Calendar,

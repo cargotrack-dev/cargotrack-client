@@ -2,7 +2,7 @@
 import { render, screen } from '@testing-library/react';
 
 // Mock the hooks - we'll do this inline for simplicity
-jest.mock('@features/Trucks/hooks/useTrucks', () => ({
+jest.mock('../../Trucks/hooks/useTrucks', () => ({
   useTruck: jest.fn(() => ({
     truck: {
       id: 'mock-truck-id',

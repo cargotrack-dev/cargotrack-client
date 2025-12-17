@@ -3,7 +3,7 @@ import {
     Invoice,
     InvoiceItem,
     PaymentRecord
-} from '@features/Invoices/types/invoice';
+} from '../../Invoices/types/invoice';
 
 export interface WaybillAdditionalCharge {
     description: string;

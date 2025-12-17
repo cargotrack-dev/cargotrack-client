@@ -7,10 +7,10 @@ import {
   CardContent, 
   CardHeader, 
   CardTitle 
-} from '@features/UI/components/ui/card';
-import { Button } from '@features/UI/components/ui/button';
-import { Badge } from '@features/UI/components/ui/badge';
-import { Input } from '@features/UI/components/ui/input';
+} from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Badge } from '../../UI/components/ui/badge';
+import { Input } from '../../UI/components/ui/input';
 import { 
   ChevronLeft, 
   Calendar,

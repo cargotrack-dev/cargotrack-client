@@ -1,9 +1,9 @@
 // src/features/Cargo/pages/CargoDetails.tsx
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card } from '@/features/UI/components/ui/card';
-import { Button } from '@/features/UI/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/features/UI/components/ui/tabs';
+import { Card } from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../UI/components/ui/tabs';
 import { useCargoData } from '../hooks/useCargoData';
 import { Cargo, CargoStatus, CargoType, HazardClass } from '../types/cargo';
 

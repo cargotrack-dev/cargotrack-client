@@ -1,9 +1,9 @@
 // src/features/Analytics/pages/ReportViewer.tsx
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card } from '@/features/UI/components/ui/card';
-import { Button } from '@/features/UI/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/features/UI/components/ui/tabs';
+import { Card } from '../../UI/components/ui/card';
+import { Button } from '../../UI/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../UI/components/ui/tabs';
 import { formatDate } from '../utils/chartUtils';
 
 // Properly define types instead of using 'any'

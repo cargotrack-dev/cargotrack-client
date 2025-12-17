@@ -1,4 +1,4 @@
-import { CargoType } from '@features/Cargo/types/cargo';
+import { CargoType } from '../../Cargo/types/cargo';
 
 /**
  * Interface for a location with coordinates
