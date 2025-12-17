@@ -12,15 +12,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "strict": false,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@features/*": ["src/features/*"],
-      "@Core/*": ["src/features/Core/*"],
-      "@UI/*": ["src/features/UI/*"],
-      "@shared/*": ["shared/*"]
-    }
+    "strict": false
   },
   "include": ["src"]
 }
