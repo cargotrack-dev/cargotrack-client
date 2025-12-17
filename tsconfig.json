@@ -13,9 +13,14 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@features/*": ["src/features/*"],
+      "@Core/*": ["src/features/Core/*"],
+      "@UI/*": ["src/features/UI/*"],
+      "@shared/*": ["shared/*"]
+    }
   },
   "include": ["src"]
 }
