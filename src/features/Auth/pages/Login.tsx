@@ -1,4 +1,6 @@
 // src/features/Auth/pages/Login.tsx
+// Updated with better scrollable demo accounts
+
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -178,7 +180,13 @@ const Login: React.FC = () => {
                 className="demo-toggle-button"
               >
                 <span>{showDemoAccounts ? '🎭 Hide Demo Accounts' : '🎭 Show Demo Accounts'}</span>
-                <ChevronDown size={18} style={{ transform: showDemoAccounts ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.3s' }} />
+                <ChevronDown
+                  size={18}
+                  style={{
+                    transform: showDemoAccounts ? 'rotate(180deg)' : 'rotate(0)',
+                    transition: 'transform 0.3s'
+                  }}
+                />
               </button>
 
               {showDemoAccounts && (
@@ -190,7 +198,12 @@ const Login: React.FC = () => {
                       disabled={isLoading}
                       className="demo-account-card"
                     >
-                      <div className="demo-account-icon" style={{ background: `linear-gradient(135deg, ${user.color}, ${user.color}dd)` }}>
+                      <div
+                        className="demo-account-icon"
+                        style={{
+                          background: `linear-gradient(135deg, ${user.color}, ${user.color}dd)`,
+                        }}
+                      >
                         {user.role.split(' ')[0]}
                       </div>
                       <div className="demo-account-info">
@@ -208,9 +221,13 @@ const Login: React.FC = () => {
 
             <div className="form-bottom">
               <p className="terms-text">
-                By signing in, you agree to our <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>
+                By signing in, you agree to our{' '}
+                <a href="#terms">Terms of Service</a> and{' '}
+                <a href="#privacy">Privacy Policy</a>
               </p>
-              <p className="demo-disclaimer">🔔 This is a demo application. All data is reset periodically.</p>
+              <p className="demo-disclaimer">
+                🔔 This is a demo application. All data is reset periodically.
+              </p>
             </div>
           </div>
         </div>

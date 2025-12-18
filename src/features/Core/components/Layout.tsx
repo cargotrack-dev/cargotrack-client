@@ -1,17 +1,19 @@
 // src/features/Core/components/Layout.tsx
+// Enhanced version: Your excellent auth + permissions + our beautiful styling
+
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Truck, FileText, BarChart2, Package, Wrench, 
   DollarSign, Users, Settings, Menu, X, Bell, LogOut,
-  User
+  User, ChevronDown
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { ResourceType, PermissionAction, Role } from '../types/auth';
 import PermissionGate from '../auth/PermissionGate';
 
 const Layout: React.FC = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -88,170 +90,285 @@ const Layout: React.FC = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Mobile sidebar backdrop */}
+    <div className="app-layout">
+      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 md:hidden"
+          className="sidebar-overlay"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div 
-        className={`
-          fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform 
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-          md:translate-x-0 md:static md:z-auto transition-transform duration-300
-        `}
+      <aside 
+        className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}
+        style={{
+          transform: window.innerWidth < 768 ? (sidebarOpen ? 'translateX(0)' : 'translateX(-100%)') : 'translateX(0)'
+        }}
       >
-        <div className="flex items-center justify-between h-16 px-4 border-b">
-          <Link to="/" className="flex items-center">
-            <span className="text-2xl font-bold text-blue-600">CargoTrack</span>
+        {/* Sidebar Header */}
+        <div className="sidebar-header">
+          <Link to="/" className="sidebar-brand">
+            <div className="sidebar-logo">
+              <Truck size={20} />
+            </div>
+            <span>CargoTrack</span>
           </Link>
           <button 
-            className="p-1 rounded-md md:hidden"
+            className="sidebar-close"
             onClick={() => setSidebarOpen(false)}
           >
-            <X className="w-6 h-6" />
+            <X size={20} />
           </button>
         </div>
-        <nav className="px-2 py-4 space-y-1">
-          {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
-            
-            // If this item requires permissions
-            if (item.permission) {
-              return (
-                <PermissionGate 
-                  key={item.name}
-                  permissions={item.permission}
-                >
-                  <Link
-                    to={item.href}
-                    className={`
-                      flex items-center px-4 py-3 text-sm font-medium rounded-md 
-                      ${isActive 
-                        ? 'bg-blue-50 text-blue-600' 
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
-                      }
-                    `}
-                  >
-                    <item.icon className={`
-                      mr-3 w-5 h-5 
-                      ${isActive ? 'text-blue-600' : 'text-gray-500'}
-                    `} />
-                    {item.name}
-                  </Link>
-                </PermissionGate>
-              );
-            }
-            
-            // For items without permission requirements
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`
-                  flex items-center px-4 py-3 text-sm font-medium rounded-md 
-                  ${isActive 
-                    ? 'bg-blue-50 text-blue-600' 
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
-                  }
-                `}
-              >
-                <item.icon className={`
-                  mr-3 w-5 h-5 
-                  ${isActive ? 'text-blue-600' : 'text-gray-500'}
-                `} />
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top header */}
-        <header className="flex items-center justify-between h-16 px-4 bg-white border-b">
+        {/* Sidebar Navigation */}
+        <nav className="sidebar-nav">
+          {/* Map through navigation items by section */}
+          <div className="nav-section">
+            <h3 className="nav-section-title">OVERVIEW</h3>
+            <div className="nav-items">
+              {navigation.slice(0, 1).map((item) => {
+                const isActive = location.pathname === item.href;
+                const Icon = item.icon;
+                
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`nav-item ${isActive ? 'active' : ''}`}
+                  >
+                    <Icon size={18} />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="nav-section">
+            <h3 className="nav-section-title">OPERATIONS</h3>
+            <div className="nav-items">
+              {navigation.slice(1, 5).map((item) => {
+                const isActive = location.pathname === item.href;
+                const Icon = item.icon;
+                
+                if (item.permission) {
+                  return (
+                    <PermissionGate 
+                      key={item.name}
+                      permissions={item.permission}
+                    >
+                      <Link
+                        to={item.href}
+                        className={`nav-item ${isActive ? 'active' : ''}`}
+                      >
+                        <Icon size={18} />
+                        <span>{item.name}</span>
+                      </Link>
+                    </PermissionGate>
+                  );
+                }
+                
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`nav-item ${isActive ? 'active' : ''}`}
+                  >
+                    <Icon size={18} />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="nav-section">
+            <h3 className="nav-section-title">MANAGEMENT</h3>
+            <div className="nav-items">
+              {navigation.slice(5, 7).map((item) => {
+                const isActive = location.pathname === item.href;
+                const Icon = item.icon;
+                
+                if (item.permission) {
+                  return (
+                    <PermissionGate 
+                      key={item.name}
+                      permissions={item.permission}
+                    >
+                      <Link
+                        to={item.href}
+                        className={`nav-item ${isActive ? 'active' : ''}`}
+                      >
+                        <Icon size={18} />
+                        <span>{item.name}</span>
+                      </Link>
+                    </PermissionGate>
+                  );
+                }
+                
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`nav-item ${isActive ? 'active' : ''}`}
+                  >
+                    <Icon size={18} />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="nav-section">
+            <h3 className="nav-section-title">SYSTEM</h3>
+            <div className="nav-items">
+              {navigation.slice(7).map((item) => {
+                const isActive = location.pathname === item.href;
+                const Icon = item.icon;
+                
+                if (item.permission) {
+                  return (
+                    <PermissionGate 
+                      key={item.name}
+                      permissions={item.permission}
+                    >
+                      <Link
+                        to={item.href}
+                        className={`nav-item ${isActive ? 'active' : ''}`}
+                      >
+                        <Icon size={18} />
+                        <span>{item.name}</span>
+                      </Link>
+                    </PermissionGate>
+                  );
+                }
+                
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`nav-item ${isActive ? 'active' : ''}`}
+                  >
+                    <Icon size={18} />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </nav>
+
+        {/* Sidebar Footer - User Profile */}
+        <div className="sidebar-footer">
+          <div className="user-profile">
+            <div className="profile-avatar">
+              {userInitials}
+            </div>
+            <div className="profile-info">
+              <p className="profile-name">{userFullName}</p>
+              <p className="profile-role">{getUserRoleDisplay()}</p>
+            </div>
+          </div>
           <button 
-            className="p-1 rounded-md md:hidden"
-            onClick={() => setSidebarOpen(true)}
+            className="logout-button"
+            onClick={handleLogout}
+            title="Logout"
           >
-            <Menu className="w-6 h-6" />
+            <LogOut size={18} />
           </button>
-          
-          <div className="flex items-center">
-            <button className="p-1 mr-4 rounded-full hover:bg-gray-100">
-              <Bell className="w-5 h-5 text-gray-500" />
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="main-content">
+        {/* Top Bar */}
+        <div className="top-bar">
+          <div className="top-bar-left">
+            <button 
+              className="menu-toggle"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              <Menu size={24} />
             </button>
-            <div className="relative">
-              <button 
-                className="flex items-center"
+            <div className="search-wrapper">
+              <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search..."
+                className="search-box"
+              />
+            </div>
+          </div>
+
+          <div className="top-bar-right">
+            <button className="notification-button">
+              <Bell size={20} />
+              <span className="notification-badge">3</span>
+            </button>
+            <div className="user-menu">
+              <button
+                className="user-menu-trigger"
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
               >
-                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
+                <div className="user-avatar">
                   {userInitials}
                 </div>
-                <span className="ml-2 text-sm font-medium text-gray-700">{userFullName}</span>
+                <span className="user-name">{userFullName}</span>
+                <ChevronDown size={16} />
               </button>
-              
-              {/* User dropdown menu */}
+
+              {/* User Dropdown Menu */}
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border">
-                  <div className="border-b px-4 py-2">
-                    <p className="text-sm font-medium text-gray-700">{userFullName}</p>
-                    <p className="text-xs text-gray-500">{getUserRoleDisplay()}</p>
+                <div className="user-dropdown-menu">
+                  <div className="user-dropdown-header">
+                    <p className="user-dropdown-name">{userFullName}</p>
+                    <p className="user-dropdown-role">{getUserRoleDisplay()}</p>
                   </div>
+                  
                   <Link
                     to="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="user-dropdown-item"
                     onClick={() => setUserMenuOpen(false)}
                   >
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 mr-2 text-gray-500" />
-                      Your Profile
-                    </div>
+                    <User size={16} />
+                    <span>Your Profile</span>
                   </Link>
+                  
                   <Link
                     to="/settings"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="user-dropdown-item"
                     onClick={() => setUserMenuOpen(false)}
                   >
-                    <div className="flex items-center">
-                      <Settings className="w-4 h-4 mr-2 text-gray-500" />
-                      Settings
-                    </div>
+                    <Settings size={16} />
+                    <span>Settings</span>
                   </Link>
+                  
                   <button
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="user-dropdown-item user-dropdown-item-logout"
                     onClick={() => {
                       setUserMenuOpen(false);
                       handleLogout();
                     }}
                   >
-                    <div className="flex items-center">
-                      <LogOut className="w-4 h-4 mr-2 text-gray-500" />
-                      Sign out
-                    </div>
+                    <LogOut size={16} />
+                    <span>Sign out</span>
                   </button>
                 </div>
               )}
             </div>
-            <button 
-              className="p-1 ml-4 rounded-full hover:bg-gray-100"
-              onClick={handleLogout}
-            >
-              <LogOut className="w-5 h-5 text-gray-500" />
-            </button>
           </div>
-        </header>
+        </div>
 
-        {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4">
+        {/* Page Content */}
+        <div className="page-content">
           <Outlet />
-        </main>
+        </div>
       </div>
     </div>
   );
