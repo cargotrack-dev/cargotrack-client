@@ -1,10 +1,8 @@
 // src/features/Auth/pages/Login.tsx
-import './Login.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { AlertCircle, Loader2, Eye, EyeOff, Truck, ArrowRight, ChevronDown } from 'lucide-react';
-
 
 interface LocationState {
   from?: {
@@ -20,35 +18,26 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showDemoAccounts, setShowDemoAccounts] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
   const [error, setError] = useState('');
 
-  // Get the page the user was trying to access
   const from = (location.state as LocationState)?.from?.pathname || '/dashboard';
 
-  useEffect(() => {
-    setIsAnimating(true);
-  }, []);
-
-  // Demo user accounts with roles
   const demoUsers = [
-    { role: '👑 Super Admin', email: 'admin@cargotrackpro.com', password: 'password', color: 'from-purple-500 to-pink-500' },
-    { role: '🎯 Operations Manager', email: 'manager@cargotrackpro.com', password: 'password', color: 'from-blue-500 to-cyan-500' },
-    { role: '📦 Dispatcher', email: 'dispatcher@cargotrackpro.com', password: 'password', color: 'from-orange-500 to-red-500' },
-    { role: '🚗 Driver', email: 'driver@cargotrackpro.com', password: 'password', color: 'from-green-500 to-emerald-500' },
-    { role: '🛍️ Client', email: 'client@example.com', password: 'password', color: 'from-indigo-500 to-blue-500' },
+    { role: '👑 Super Admin', email: 'admin@cargotrackpro.com', password: 'password', color: '#a855f7' },
+    { role: '🎯 Operations Manager', email: 'manager@cargotrackpro.com', password: 'password', color: '#3b82f6' },
+    { role: '📦 Dispatcher', email: 'dispatcher@cargotrackpro.com', password: 'password', color: '#f97316' },
+    { role: '🚗 Driver', email: 'driver@cargotrackpro.com', password: 'password', color: '#22c55e' },
+    { role: '🛍️ Client', email: 'client@example.com', password: 'password', color: '#6366f1' },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
     try {
       await login(email, password);
       navigate(from, { replace: true });
-    } catch (err) {
+    } catch (_err) {
       setError(authError || 'Login failed. Please try again.');
-      console.error('Login error:', err);
     }
   };
 
@@ -56,13 +45,11 @@ const Login: React.FC = () => {
     setEmail(userEmail);
     setPassword(userPassword);
     setError('');
-
     try {
       await login(userEmail, userPassword);
       navigate(from, { replace: true });
-    } catch (err) {
+    } catch (_err) {
       setError(authError || 'Login failed. Please try again.');
-      console.error('Quick login error:', err);
     }
   };
 
@@ -70,20 +57,13 @@ const Login: React.FC = () => {
 
   return (
     <div className="login-container">
-      {/* Animated Background Elements */}
-      <div className="background-gradient"></div>
-      <div className="floating-shapes">
-        <div className="shape shape-1"></div>
-        <div className="shape shape-2"></div>
-        <div className="shape shape-3"></div>
-      </div>
+      <div className="accent-line"></div>
 
-      {/* Main Content */}
-      <div className={`login-content ${isAnimating ? 'animate-in' : ''}`}>
+      <div className="login-content">
         {/* Left Section - Branding */}
         <div className="branding-section">
           <div className="brand-content">
-            <div className={`logo-wrapper ${isAnimating ? 'fade-in-down' : ''}`}>
+            <div className="logo-wrapper">
               <div className="logo-icon">
                 <Truck size={48} />
               </div>
@@ -91,17 +71,14 @@ const Login: React.FC = () => {
               <p className="brand-subtitle">Enterprise Logistics</p>
             </div>
 
-            <div className={`tagline ${isAnimating ? 'fade-in-up' : ''}`}>
-              <p className="main-tagline">
-                Transform Your Logistics Operations
-              </p>
+            <div className="tagline">
+              <p className="main-tagline">Transform Your Logistics Operations</p>
               <p className="sub-tagline">
                 Real-time tracking, intelligent routing, and complete visibility for African logistics
               </p>
             </div>
 
-            {/* Features List */}
-            <div className={`features-list ${isAnimating ? 'fade-in-up' : ''}`}>
+            <div className="features-list">
               <div className="feature-item">
                 <div className="feature-dot"></div>
                 <span>Real-time Shipment Tracking</span>
@@ -120,14 +97,11 @@ const Login: React.FC = () => {
 
         {/* Right Section - Login Form */}
         <div className="form-section">
-          <div className={`form-wrapper ${isAnimating ? 'fade-in-right' : ''}`}>
+          <div className="form-wrapper">
             <h2 className="form-title">Welcome Back</h2>
-            <p className="form-description">
-              Sign in to your CargoTrack account
-            </p>
+            <p className="form-description">Sign in to your CargoTrack account</p>
 
             <form onSubmit={handleSubmit} className="login-form">
-              {/* Error Message */}
               {displayError && (
                 <div className="error-message">
                   <AlertCircle size={18} />
@@ -135,11 +109,8 @@ const Login: React.FC = () => {
                 </div>
               )}
 
-              {/* Email Input */}
               <div className="form-group">
-                <label htmlFor="email" className="form-label">
-                  Email Address
-                </label>
+                <label htmlFor="email" className="form-label">Email Address</label>
                 <div className="input-wrapper">
                   <input
                     id="email"
@@ -154,11 +125,8 @@ const Login: React.FC = () => {
                 </div>
               </div>
 
-              {/* Password Input */}
               <div className="form-group">
-                <label htmlFor="password" className="form-label">
-                  Password
-                </label>
+                <label htmlFor="password" className="form-label">Password</label>
                 <div className="input-wrapper">
                   <input
                     id="password"
@@ -181,12 +149,7 @@ const Login: React.FC = () => {
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`submit-button ${isLoading ? 'loading' : ''}`}
-              >
+              <button type="submit" disabled={isLoading} className="submit-button">
                 {isLoading ? (
                   <>
                     <Loader2 size={18} className="spinner-icon" />
@@ -200,31 +163,22 @@ const Login: React.FC = () => {
                 )}
               </button>
 
-              {/* Remember Me & Forgot Password */}
               <div className="form-footer">
                 <label className="remember-me">
                   <input type="checkbox" disabled={isLoading} />
                   <span>Remember me</span>
                 </label>
-                <a href="#forgot" className="forgot-link">
-                  Forgot password?
-                </a>
+                <a href="#forgot" className="forgot-link">Forgot password?</a>
               </div>
             </form>
 
-            {/* Demo Accounts Section */}
             <div className="demo-section">
               <button
                 onClick={() => setShowDemoAccounts(!showDemoAccounts)}
                 className="demo-toggle-button"
               >
-                <span className="demo-toggle-text">
-                  {showDemoAccounts ? '🎭 Hide Demo Accounts' : '🎭 Show Demo Accounts'}
-                </span>
-                <ChevronDown
-                  size={18}
-                  className={`demo-toggle-icon ${showDemoAccounts ? 'rotate' : ''}`}
-                />
+                <span>{showDemoAccounts ? '🎭 Hide Demo Accounts' : '🎭 Show Demo Accounts'}</span>
+                <ChevronDown size={18} style={{ transform: showDemoAccounts ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.3s' }} />
               </button>
 
               {showDemoAccounts && (
@@ -235,43 +189,32 @@ const Login: React.FC = () => {
                       onClick={() => handleQuickLogin(user.email, user.password)}
                       disabled={isLoading}
                       className="demo-account-card"
-                      title={`${user.role}: ${user.email}`}
                     >
-                      <div className={`demo-account-icon bg-gradient-to-br ${user.color}`}>
+                      <div className="demo-account-icon" style={{ background: `linear-gradient(135deg, ${user.color}, ${user.color}dd)` }}>
                         {user.role.split(' ')[0]}
                       </div>
                       <div className="demo-account-info">
                         <div className="demo-account-role">{user.role}</div>
                         <div className="demo-account-email">{user.email}</div>
                       </div>
-                      <ArrowRight size={16} className="demo-account-arrow" />
+                      <ArrowRight size={16} />
                     </button>
                   ))}
                 </div>
               )}
 
-              <p className="demo-note">
-                Demo credentials provided for testing purposes
-              </p>
+              <p className="demo-note">Demo credentials provided for testing purposes</p>
             </div>
 
-            {/* Footer */}
             <div className="form-bottom">
               <p className="terms-text">
-                By signing in, you agree to our{' '}
-                <a href="#terms">Terms of Service</a> and{' '}
-                <a href="#privacy">Privacy Policy</a>
+                By signing in, you agree to our <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>
               </p>
-              <p className="demo-disclaimer">
-                🔔 This is a demo application. All data is reset periodically.
-              </p>
+              <p className="demo-disclaimer">🔔 This is a demo application. All data is reset periodically.</p>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Top Accent Line */}
-      <div className="accent-line"></div>
     </div>
   );
 };
