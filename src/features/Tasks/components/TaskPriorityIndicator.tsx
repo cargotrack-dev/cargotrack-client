@@ -1,6 +1,7 @@
 // src/features/Tasks/components/TaskPriorityIndicator.tsx
+// ✅ FIXED - Removed React Native, converted to web
+
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 
 interface TaskPriorityIndicatorProps {
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
@@ -10,39 +11,22 @@ const TaskPriorityIndicator: React.FC<TaskPriorityIndicatorProps> = ({ priority 
   const getPriorityColor = () => {
     switch (priority) {
       case 'HIGH':
-        return '#d9534f'; // Red
+        return 'bg-red-500'; // Red
       case 'MEDIUM':
-        return '#f0ad4e'; // Orange
+        return 'bg-yellow-500'; // Orange
       case 'LOW':
-        return '#5cb85c'; // Green
+        return 'bg-green-500'; // Green
       default:
-        return '#777777'; // Gray
+        return 'bg-gray-500'; // Gray
     }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.indicator, { backgroundColor: getPriorityColor() }]} />
-      <Text style={styles.text}>{priority}</Text>
-    </View>
+    <div className="flex items-center gap-2">
+      <div className={`w-3 h-3 rounded-full ${getPriorityColor()}`}></div>
+      <span className="text-sm text-gray-600">{priority}</span>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  indicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 6,
-  },
-  text: {
-    fontSize: 12,
-    color: '#666',
-  },
-});
 
 export default TaskPriorityIndicator;

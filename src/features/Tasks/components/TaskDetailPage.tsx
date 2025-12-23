@@ -1,8 +1,8 @@
 // src/features/Tasks/pages/TaskDetailPage.tsx
+// ✅ FIXED - Removed React Native, converted to web with React Router
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Task } from '../types/task';
 import { getTaskById, updateTaskStatus } from '../services/taskService';
 import TaskStatusBadge from '../components/TaskStatusBadge';
@@ -10,23 +10,22 @@ import TaskPriorityIndicator from '../components/TaskPriorityIndicator';
 import TaskAssignmentForm from '../components/TaskAssignmentForm';
 
 const TaskDetailPage: React.FC = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const { taskId } = route.params as { taskId: string };
+  const navigate = useNavigate();
+  const { taskId } = useParams<{ taskId: string }>();
   
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   
-  // Mock users for assignment (in a real app, you'd fetch these)
+  // Mock users for assignment
   const [users] = useState([
     { id: 'user1', firstName: 'John', lastName: 'Doe', role: 'OPERATOR' },
     { id: 'user2', firstName: 'Jane', lastName: 'Smith', role: 'DRIVER' },
   ]);
 
-  // ✅ FIXED: Use useCallback to memoize fetchTaskDetails
   const fetchTaskDetails = useCallback(async () => {
+    if (!taskId) return;
     try {
       setLoading(true);
       setError(null);
@@ -39,16 +38,14 @@ const TaskDetailPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [taskId]); // ✅ FIXED: Include taskId as dependency
+  }, [taskId]);
 
-  // ✅ FIXED: Now fetchTaskDetails is stable and can be included in dependencies
   useEffect(() => {
     fetchTaskDetails();
   }, [fetchTaskDetails]);
 
-  // ✅ FIXED: Add navigation functionality - back button
   const handleGoBack = () => {
-    navigation.goBack();
+    navigate(-1 as any);
   };
 
   const handleUpdateStatus = async (newStatus: string) => {
@@ -67,235 +64,116 @@ const TaskDetailPage: React.FC = () => {
   };
 
   const handleAssignTask = async (userId: string) => {
-    // This would call your assignTask API
     console.log(`Assign task ${taskId} to user ${userId}`);
   };
 
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#0066cc" />
-      </View>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+      </div>
     );
   }
 
   if (error || !task) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.errorText}>{error || 'Task not found'}</Text>
-        <View style={styles.errorActions}>
-          <TouchableOpacity 
-            style={styles.retryButton}
-            onPress={fetchTaskDetails}
+      <div className="flex flex-col items-center justify-center h-64 p-4">
+        <p className="text-red-600 text-center mb-4">{error || 'Task not found'}</p>
+        <div className="flex gap-3">
+          <button 
+            onClick={fetchTaskDetails}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
           >
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={handleGoBack}
+            Retry
+          </button>
+          <button 
+            onClick={handleGoBack}
+            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
           >
-            <Text style={styles.backButtonText}>Go Back</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            Go Back
+          </button>
+        </div>
+      </div>
     );
   }
 
   const canUpdateStatus = task.status !== 'COMPLETED' && task.status !== 'CANCELLED';
 
   return (
-    <ScrollView style={styles.container}>
-      {/* ✅ ADDED: Header with back button */}
-      <View style={styles.headerBar}>
-        <TouchableOpacity style={styles.backButtonHeader} onPress={handleGoBack}>
-          <Text style={styles.backButtonHeaderText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Task Details</Text>
-      </View>
+    <div className="overflow-auto bg-gray-100 min-h-screen">
+      <div className="max-w-2xl mx-auto p-4">
+        {/* Header with back button */}
+        <div className="mb-6">
+          <button 
+            onClick={handleGoBack}
+            className="text-blue-600 hover:text-blue-700 font-medium"
+          >
+            ← Back
+          </button>
+        </div>
 
-      <View style={styles.header}>
-        <Text style={styles.taskType}>{task.type}</Text>
-        <TaskPriorityIndicator priority={task.priority} />
-      </View>
-      
-      <Text style={styles.description}>{task.description}</Text>
-      
-      <View style={styles.statusSection}>
-        <Text style={styles.sectionTitle}>Status</Text>
-        <TaskStatusBadge status={task.status} />
-        
-        {canUpdateStatus && (
-          <View style={styles.statusActions}>
-            {task.status !== 'IN_PROGRESS' && (
-              <TouchableOpacity
-                style={[styles.actionButton, updatingStatus && styles.disabledButton]}
-                onPress={() => handleUpdateStatus('IN_PROGRESS')}
-                disabled={updatingStatus}
-              >
-                <Text style={styles.actionButtonText}>Start Task</Text>
-              </TouchableOpacity>
-            )}
-            
-            {task.status === 'IN_PROGRESS' && (
-              <TouchableOpacity
-                style={[styles.actionButton, styles.completeButton, updatingStatus && styles.disabledButton]}
-                onPress={() => handleUpdateStatus('COMPLETED')}
-                disabled={updatingStatus}
-              >
-                <Text style={styles.actionButtonText}>Complete Task</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+        {/* Task Header */}
+        <div className="bg-white rounded-lg p-6 mb-6 flex justify-between items-start">
+          <h1 className="text-3xl font-bold">{task.type}</h1>
+          <TaskPriorityIndicator priority={task.priority} />
+        </div>
+
+        {/* Description */}
+        <p className="bg-white rounded-lg p-6 mb-6 text-gray-700 leading-relaxed">
+          {task.description}
+        </p>
+
+        {/* Status Section */}
+        <div className="bg-white rounded-lg p-6 mb-6">
+          <h2 className="text-xl font-bold mb-4">Status</h2>
+          <div className="mb-4">
+            <TaskStatusBadge status={task.status} />
+          </div>
+          
+          {canUpdateStatus && (
+            <div className="flex gap-3">
+              {task.status !== 'IN_PROGRESS' && (
+                <button
+                  onClick={() => handleUpdateStatus('IN_PROGRESS')}
+                  disabled={updatingStatus}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded transition"
+                >
+                  Start Task
+                </button>
+              )}
+              
+              {task.status === 'IN_PROGRESS' && (
+                <button
+                  onClick={() => handleUpdateStatus('COMPLETED')}
+                  disabled={updatingStatus}
+                  className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded transition"
+                >
+                  Complete Task
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Truck Info */}
+        {task.truckId && (
+          <div className="bg-white rounded-lg p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4">Truck</h2>
+            <p className="text-gray-700">ID: {task.truckId}</p>
+          </div>
         )}
-      </View>
-      
-      {task.truckId && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Truck</Text>
-          <Text style={styles.sectionText}>ID: {task.truckId}</Text>
-        </View>
-      )}
-      
-      <TaskAssignmentForm
-        users={users}
-        currentAssignee={task.assignedTo}
-        onAssign={handleAssignTask}
-      />
-    </ScrollView>
+
+        {/* Task Assignment */}
+        <div className="mb-6">
+          <TaskAssignmentForm
+            users={users}
+            currentAssignee={task.assignedTo}
+            onAssign={handleAssignTask}
+          />
+        </div>
+      </div>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f8f8',
-    padding: 16,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-  // ✅ ADDED: New header bar styles
-  headerBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  backButtonHeader: {
-    marginRight: 16,
-  },
-  backButtonHeaderText: {
-    fontSize: 16,
-    color: '#0066cc',
-    fontWeight: '500',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  taskType: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  description: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#444',
-    marginBottom: 24,
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 8,
-  },
-  section: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  statusSection: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  sectionText: {
-    fontSize: 16,
-    color: '#444',
-  },
-  statusActions: {
-    marginTop: 16,
-    flexDirection: 'row',
-  },
-  actionButton: {
-    backgroundColor: '#0066cc',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 4,
-    marginRight: 12,
-  },
-  completeButton: {
-    backgroundColor: '#5cb85c',
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
-  },
-  actionButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#d9534f',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  // ✅ ADDED: Error actions container
-  errorActions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  retryButton: {
-    backgroundColor: '#0066cc',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 4,
-  },
-  retryButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  // ✅ ADDED: Back button styles
-  backButton: {
-    backgroundColor: '#6c757d',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 4,
-  },
-  backButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-});
 
 export default TaskDetailPage;

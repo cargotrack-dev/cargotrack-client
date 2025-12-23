@@ -1,5 +1,7 @@
+// src/features/Tasks/components/TaskCard.tsx
+// ✅ FIXED - Removed React Native, converted to web
+
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Task } from '../types/task';
 import TaskStatusBadge from './TaskStatusBadge';
 import TaskPriorityIndicator from './TaskPriorityIndicator';
@@ -11,61 +13,28 @@ interface Props {
 
 const TaskCard: React.FC<Props> = ({ task, onPress }) => {
   return (
-    <TouchableOpacity 
-      style={styles.container} 
-      onPress={() => onPress(task.id)}
+    <button
+      onClick={() => onPress(task.id)}
+      className="w-full bg-white rounded-lg p-4 mb-3 shadow-sm hover:shadow-md transition cursor-pointer text-left border border-gray-200"
     >
-      <View style={styles.header}>
-        <Text style={styles.type}>{task.type}</Text>
+      {/* Header */}
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="text-base font-bold">{task.type}</h3>
         <TaskPriorityIndicator priority={task.priority} />
-      </View>
-      <Text style={styles.description}>{task.description}</Text>
-      <View style={styles.footer}>
+      </div>
+
+      {/* Description */}
+      <p className="text-sm text-gray-600 mb-3">{task.description}</p>
+
+      {/* Footer */}
+      <div className="flex justify-between items-center">
         <TaskStatusBadge status={task.status} />
         {task.assignedTo && (
-          <Text style={styles.assignee}>Assigned to: {task.assignedTo}</Text>
+          <span className="text-xs text-gray-700">Assigned to: {task.assignedTo}</span>
         )}
-      </View>
-    </TouchableOpacity>
+      </div>
+    </button>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  type: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  description: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 12,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  assignee: {
-    fontSize: 12,
-    color: '#777',
-  },
-});
 
 export default TaskCard;

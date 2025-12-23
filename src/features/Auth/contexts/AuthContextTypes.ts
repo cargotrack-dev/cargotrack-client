@@ -20,11 +20,30 @@ import {
   
   // Define a more specific type for additional context properties
   export interface ContextProperties {
+    // Existing properties
     ownerId?: string;
     departmentId?: string;
     clientId?: string;
     value?: number;
     timestamp?: Date;
+    
+    // ✅ NEW CUSTOM RESTRICTION CONTEXT PROPERTIES
+    shipmentRegion?: string;
+    vehicleType?: string;
+    customerId?: string;
+    shipmentPriority?: 'standard' | 'express' | 'urgent' | 'critical';
+    shipmentStatus?: string;
+    shipmentCost?: number;
+    shipmentWeight?: number;
+    distanceKm?: number;
+    location?: { lat: number; lng: number };
+    vehicleStatus?: 'active' | 'maintenance' | 'standby';
+    hasTemperatureControl?: boolean;
+    approvalLevel?: number;
+    companyId?: string;
+    providedDocuments?: string[];
+    
+    // Allow additional custom properties
     [key: string]: unknown;
   }
   
@@ -132,42 +151,64 @@ import {
       description: 'Manage all users'
     },
     
-    // Operations Manager permissions
+    // Operations Manager permissions - with custom restrictions
     {
       id: 'perm-ops-manage',
       resource: ResourceType.SHIPMENT,
       action: PermissionAction.MANAGE,
-      description: 'Manage all shipments'
+      description: 'Manage all shipments',
+      constraints: {
+        budgetLimit: 1000000, // ₦1M budget limit
+        maxPriorityLevel: 'critical'
+      }
     },
     
-    // Dispatcher permissions
+    // Dispatcher permissions - with region restrictions
     {
       id: 'perm-dispatch',
       resource: ResourceType.SHIPMENT,
       action: PermissionAction.CREATE,
-      description: 'Create shipments'
+      description: 'Create shipments',
+      constraints: {
+        regionRestriction: true,
+        maxPriorityLevel: 'urgent'
+      }
     },
     {
       id: 'perm-dispatch-update',
       resource: ResourceType.SHIPMENT,
       action: PermissionAction.UPDATE,
-      description: 'Update shipments'
+      description: 'Update shipments',
+      constraints: {
+        allowedStatuses: ['pending', 'draft', 'in-transit']
+      }
     },
     {
       id: 'perm-route-manage',
       resource: ResourceType.ROUTE,
       action: PermissionAction.MANAGE,
-      description: 'Manage routes'
+      description: 'Manage routes',
+      constraints: {
+        regionRestriction: true,
+        maxDistance: 200
+      }
     },
     
-    // Driver permissions
+    // Driver permissions - with vehicle and distance restrictions
     {
       id: 'perm-driver',
       resource: ResourceType.SHIPMENT,
       action: PermissionAction.READ,
       description: 'View assigned shipments',
       constraints: {
-        ownedOnly: true
+        ownedOnly: true,
+        vehicleTypeRestriction: true,
+        maxDistance: 100,
+        geofence: {
+          centerLat: 6.5244,
+          centerLng: 3.3792,
+          radiusKm: 50
+        }
       }
     },
     
@@ -185,7 +226,11 @@ import {
       id: 'perm-client-create',
       resource: ResourceType.CARGO,
       action: PermissionAction.CREATE,
-      description: 'Create cargo items'
+      description: 'Create cargo items',
+      constraints: {
+        customerRestriction: true,
+        budgetLimit: 500000 // ₦500K per client
+      }
     }
   ];
   
@@ -242,7 +287,8 @@ import {
         email: 'manager@cargotrackpro.com',
         firstName: 'Operations',
         lastName: 'Manager',
-        jobTitle: 'Operations Manager'
+        jobTitle: 'Operations Manager',
+        budgetUsed: 250000 // Currently used ₦250K of ₦1M budget
       },
       settings: {
         userId: 'user-002',
@@ -280,7 +326,8 @@ import {
         email: 'dispatcher@cargotrackpro.com',
         firstName: 'Dispatch',
         lastName: 'User',
-        jobTitle: 'Dispatcher'
+        jobTitle: 'Dispatcher',
+        allowedRegions: ['Lagos', 'Ogun', 'Oyo'] // Dispatcher assigned to these regions
       },
       settings: {
         userId: 'user-003',
@@ -318,7 +365,9 @@ import {
         email: 'driver@cargotrackpro.com',
         firstName: 'John',
         lastName: 'Driver',
-        jobTitle: 'Truck Driver'
+        jobTitle: 'Truck Driver',
+        allowedRegions: ['Lagos', 'Ogun'], // Driver assigned to Lagos and Ogun only
+        allowedVehicleTypes: ['truck', 'van'] // Can only operate trucks and vans
       },
       settings: {
         userId: 'user-004',
@@ -359,7 +408,9 @@ import {
         },
         availability: {
           status: 'AVAILABLE'
-        }
+        },
+        allowedRegions: ['Lagos', 'Ogun'],
+        allowedVehicleTypes: ['truck', 'van']
       },
       createdAt: new Date('2023-01-01')
     },
@@ -378,7 +429,8 @@ import {
         username: 'client1',
         email: 'client@example.com',
         firstName: 'Client',
-        lastName: 'User'
+        lastName: 'User',
+        budgetUsed: 120000 // Currently used ₦120K of ₦500K budget
       },
       settings: {
         userId: 'user-005',
@@ -401,6 +453,7 @@ import {
       },
       createdAt: new Date('2023-01-01')
     }
+    
   ];
   
   // LocalStorage key for auth data

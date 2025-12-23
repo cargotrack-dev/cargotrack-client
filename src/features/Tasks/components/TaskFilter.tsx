@@ -1,6 +1,7 @@
 // src/features/Tasks/components/TaskFilter.tsx
+// ✅ FIXED - Removed React Native, converted to web
+
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 interface TaskFilterProps {
   currentFilters: {
@@ -37,143 +38,80 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ currentFilters, onFilterChange 
     });
   };
 
+  const isStatusActive = (status: string) => 
+    (status === 'ALL' && !currentFilters.status) || status === currentFilters.status;
+  
+  const isPriorityActive = (priority: string) => 
+    (priority === 'ALL' && !currentFilters.priority) || priority === currentFilters.priority;
+  
+  const isTypeActive = (type: string) => 
+    (type === 'ALL' && !currentFilters.type) || type === currentFilters.type;
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Filters</Text>
+    <div className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+      <h2 className="text-lg font-bold mb-4">Filters</h2>
       
-      <View style={styles.filterSection}>
-        <Text style={styles.sectionTitle}>Status</Text>
-        <View style={styles.optionsRow}>
+      {/* Status Filter */}
+      <div className="mb-6">
+        <h3 className="text-base font-semibold mb-2">Status</h3>
+        <div className="flex flex-wrap gap-2">
           {statusOptions.map(status => (
-            <TouchableOpacity
+            <button
               key={status}
-              style={[
-                styles.filterOption,
-                (status === 'ALL' && !currentFilters.status) || status === currentFilters.status 
-                  ? styles.activeOption
-                  : null
-              ]}
-              onPress={() => handleStatusFilter(status)}
+              onClick={() => handleStatusFilter(status)}
+              className={`px-3 py-1 rounded-full text-sm transition ${
+                isStatusActive(status)
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
             >
-              <Text 
-                style={[
-                  styles.optionText,
-                  (status === 'ALL' && !currentFilters.status) || status === currentFilters.status 
-                    ? styles.activeOptionText
-                    : null
-                ]}
-              >
-                {status.replace('_', ' ')}
-              </Text>
-            </TouchableOpacity>
+              {status.replace(/_/g, ' ')}
+            </button>
           ))}
-        </View>
-      </View>
-      
-      <View style={styles.filterSection}>
-        <Text style={styles.sectionTitle}>Priority</Text>
-        <View style={styles.optionsRow}>
+        </div>
+      </div>
+
+      {/* Priority Filter */}
+      <div className="mb-6">
+        <h3 className="text-base font-semibold mb-2">Priority</h3>
+        <div className="flex flex-wrap gap-2">
           {priorityOptions.map(priority => (
-            <TouchableOpacity
+            <button
               key={priority}
-              style={[
-                styles.filterOption,
-                (priority === 'ALL' && !currentFilters.priority) || priority === currentFilters.priority 
-                  ? styles.activeOption
-                  : null
-              ]}
-              onPress={() => handlePriorityFilter(priority)}
+              onClick={() => handlePriorityFilter(priority)}
+              className={`px-3 py-1 rounded-full text-sm transition ${
+                isPriorityActive(priority)
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
             >
-              <Text 
-                style={[
-                  styles.optionText,
-                  (priority === 'ALL' && !currentFilters.priority) || priority === currentFilters.priority 
-                    ? styles.activeOptionText
-                    : null
-                ]}
-              >
-                {priority}
-              </Text>
-            </TouchableOpacity>
+              {priority}
+            </button>
           ))}
-        </View>
-      </View>
-      
-      <View style={styles.filterSection}>
-        <Text style={styles.sectionTitle}>Type</Text>
-        <View style={styles.optionsRow}>
+        </div>
+      </div>
+
+      {/* Type Filter */}
+      <div>
+        <h3 className="text-base font-semibold mb-2">Type</h3>
+        <div className="flex flex-wrap gap-2">
           {typeOptions.map(type => (
-            <TouchableOpacity
+            <button
               key={type}
-              style={[
-                styles.filterOption,
-                (type === 'ALL' && !currentFilters.type) || type === currentFilters.type 
-                  ? styles.activeOption
-                  : null
-              ]}
-              onPress={() => handleTypeFilter(type)}
+              onClick={() => handleTypeFilter(type)}
+              className={`px-3 py-1 rounded-full text-sm transition ${
+                isTypeActive(type)
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
             >
-              <Text 
-                style={[
-                  styles.optionText,
-                  (type === 'ALL' && !currentFilters.type) || type === currentFilters.type 
-                    ? styles.activeOptionText
-                    : null
-                ]}
-              >
-                {type}
-              </Text>
-            </TouchableOpacity>
+              {type}
+            </button>
           ))}
-        </View>
-      </View>
-    </View>
+        </div>
+      </div>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  filterSection: {
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 8,
-  },
-  optionsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  filterOption: {
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  activeOption: {
-    backgroundColor: '#0066cc',
-  },
-  optionText: {
-    fontSize: 14,
-    color: '#333',
-  },
-  activeOptionText: {
-    color: '#fff',
-    fontWeight: '500',
-  },
-});
 
 export default TaskFilter;

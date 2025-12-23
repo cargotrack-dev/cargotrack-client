@@ -1,136 +1,192 @@
-// src/App.tsx - Practical fix using your existing file structure
+// src/App.tsx
+// ✅ OPTIMIZED - Removed redundant AuthProvider (already in main.tsx)
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './features/Auth';
+import { useAuth } from './features/Auth/contexts/AuthProvider';
 import { ToastProvider } from './features/UI/components/ui/toast/ToastProvider';
-import Layout from './features/Core/components/Layout';
-import Dashboard from './features/Dashboard/components/DashboardLayout';
-import TruckList from './features/Trucks/pages/TruckList';
-import TruckDetails from './features/Trucks/pages/TruckDetails';
-import WaybillList from './features/Waybills/pages/WaybillList';
-import WaybillDetails from './features/Waybills/pages/WaybillDetails';
-import CargoList from './features/Cargo/pages/CargoList';
-import MaintenanceList from './features/Maintenance/pages/MaintenanceList';
-import { InvoiceList } from './features/Invoices/pages/InvoiceList';
-import UserList from './features/Admin/pages/UserList';
-import Settings from './features/Settings/pages/Settings';
-import NotFound from './features/Core/pages/NotFound';
+import { useThemeInit } from './features/Core/hooks/useTheme';
+
+// ✅ Public pages
+import LandingPage from './pages/LandingPage';
+import RegisterPage from './pages/Register';
+
+// ✅ Auth pages
 import Login from './features/Auth/pages/Login';
 import UnauthorizedPage from './features/Auth/pages/UnauthorizedPage';
-import { type ReactElement } from 'react';
-import { ResourceType, PermissionAction } from './features/Auth/types/auth';
 
-// Protected route wrapper component
-const ProtectedRoute: React.FC<{
-  element: ReactElement;
-  requiredPermission?: { resource: ResourceType; action: PermissionAction };
-}> = ({ element, requiredPermission }) => {
-  const { isAuthenticated, isLoading, hasPermission } = useAuth();
+// ✅ Layout
+import AppLayout from './features/Core/components/AppLayout';
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent"></div>
-      </div>
-    );
-  }
+// ✅ All protected pages
+import Dashboard from './features/Dashboard/pages/Dashboard';
+import ShipmentList from './features/Shipments/pages/ShipmentListPage';
+import ShipmentDetails from './features/Shipments/pages/ShipmentDetailsPage';
+import TruckList from './features/Trucks/pages/TruckList';
+import TruckDetails from './features/Trucks/pages/TruckDetails';
+import CargoList from './features/Cargo/pages/CargoList';
+import InvoiceList from './features/Invoices/pages/InvoiceList';
+import InvoiceGenerator from './features/Invoices/pages/InvoiceGenerator';
+import InvoiceDetails from './features/Invoices/pages/InvoiceDetails';
+import TaskList from './features/Tasks/pages/TaskListPage';
+import TaskDetails from './features/Tasks/pages/TaskDetailPage';
+import TrackingDashboard from './features/Tracking/pages/LiveTracking';
+import Analytics from './features/Analytics/pages/Dashboard';
+import Settings from './features/Settings/pages/Settings';
+import UserManagement from './features/Admin/pages/UserManagement';
+
+/**
+ * ProtectedRoute Component
+ * Checks authentication before allowing access to protected routes
+ */
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiredRole?: string;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requiredRole,
+}) => {
+  const { isAuthenticated, hasRole } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  if (requiredPermission && !hasPermission(requiredPermission.resource, requiredPermission.action)) {
+  if (requiredRole && !hasRole(requiredRole)) {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return element;
+  return <>{children}</>;
 };
 
-function App(): ReactElement {
+/**
+ * Main App Component
+ */
+function App() {
+  useThemeInit();
+
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <Router>
-          <Routes>
-            {/* Auth routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/unauthorized" element={<UnauthorizedPage />} />
+    <ToastProvider>
+      <Router>
+        <Routes>
 
-            {/* Protected routes */}
-            <Route path="/" element={<ProtectedRoute element={<Layout />} />}>
-              <Route index element={<Dashboard />} />
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* ✅ PUBLIC ROUTES - No authentication required, always accessible */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          
+          {/* Landing page - Main entry point */}
+          <Route path="/" element={<LandingPage />} />
+          
+          {/* Registration page */}
+          <Route path="/register" element={<RegisterPage />} />
+          
+          {/* Login page */}
+          <Route path="/login" element={<Login />} />
+          
+          {/* Unauthorized page */}
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-              <Route path="trucks" element={
-                <ProtectedRoute
-                  element={<TruckList />}
-                  requiredPermission={{ resource: ResourceType.VEHICLE, action: PermissionAction.READ }}
-                />
-              } />
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* ✅ PROTECTED ROUTES - All wrapped with ProtectedRoute + AppLayout */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          
+          <Route
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          >
+            {/* Dashboard */}
+            <Route path="/dashboard" element={<Dashboard />} />
 
-              <Route path="trucks/:id" element={
-                <ProtectedRoute
-                  element={<TruckDetails />}
-                  requiredPermission={{ resource: ResourceType.VEHICLE, action: PermissionAction.READ }}
-                />
-              } />
+            {/* Shipments */}
+            <Route path="/shipments" element={<ShipmentList />} />
+            <Route path="/shipments/:id" element={<ShipmentDetails />} />
 
-              <Route path="waybills" element={
-                <ProtectedRoute
-                  element={<WaybillList />}
-                  requiredPermission={{ resource: ResourceType.DOCUMENT, action: PermissionAction.READ }}
-                />
-              } />
+            {/* Trucks */}
+            <Route path="/trucks" element={<TruckList />} />
+            <Route path="/trucks/:id" element={<TruckDetails />} />
 
-              <Route path="waybills/:id" element={
-                <ProtectedRoute
-                  element={<WaybillDetails />}
-                  requiredPermission={{ resource: ResourceType.DOCUMENT, action: PermissionAction.READ }}
-                />
-              } />
+            {/* Cargo */}
+            <Route path="/cargo" element={<CargoList />} />
 
-              <Route path="cargo" element={
-                <ProtectedRoute
-                  element={<CargoList />}
-                  requiredPermission={{ resource: ResourceType.CARGO, action: PermissionAction.READ }}
-                />
-              } />
+            {/* Invoices */}
+            <Route path="/invoices" element={<InvoiceList />} />
+            <Route path="/invoices/new" element={<InvoiceGenerator />} />
+            <Route path="/invoices/:id" element={<InvoiceDetails />} />
 
-              <Route path="maintenance" element={
-                <ProtectedRoute
-                  element={<MaintenanceList />}
-                  requiredPermission={{ resource: ResourceType.MAINTENANCE, action: PermissionAction.READ }}
-                />
-              } />
+            {/* Tasks */}
+            <Route path="/tasks" element={<TaskList />} />
+            <Route path="/tasks/:id" element={<TaskDetails />} />
 
-              <Route path="invoices" element={
-                <ProtectedRoute
-                  element={<InvoiceList />}
-                  requiredPermission={{ resource: ResourceType.INVOICE, action: PermissionAction.READ }}
-                />
-              } />
+            {/* Tracking */}
+            <Route path="/tracking" element={<TrackingDashboard />} />
 
-              <Route path="users" element={
-                <ProtectedRoute
-                  element={<UserList />}
-                  requiredPermission={{ resource: ResourceType.USER, action: PermissionAction.READ }}
-                />
-              } />
+            {/* Analytics */}
+            <Route path="/analytics" element={<Analytics />} />
 
-              <Route path="settings" element={
-                <ProtectedRoute
-                  element={<Settings />}
-                  requiredPermission={{ resource: ResourceType.SETTING, action: PermissionAction.READ }}
-                />
-              } />
-            </Route>
+            {/* Settings */}
+            <Route path="/settings" element={<Settings />} />
 
-            {/* 404 route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Router>
-      </ToastProvider>
-    </AuthProvider>
+            {/* Admin */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+
+          </Route>
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* ✅ FALLBACK - 404 Not Found */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          
+          <Route path="/404" element={<div className="p-8">Page not found</div>} />
+          <Route path="*" element={<Navigate to="/404" replace />} />
+
+        </Routes>
+      </Router>
+    </ToastProvider>
   );
 }
+
+/**
+ * 🎯 Route Structure:
+ * 
+ * PUBLIC ROUTES (Always accessible):
+ * /                    ← Landing page (new users start here)
+ * /register            ← Registration form
+ * /login               ← Login form
+ * /unauthorized        ← Unauthorized access
+ * 
+ * PROTECTED ROUTES (Require authentication):
+ * /dashboard           ← Main dashboard
+ * /shipments           ← Shipment management
+ * /trucks              ← Vehicle management
+ * /cargo               ← Cargo tracking
+ * /invoices            ← Invoice management
+ * /tasks               ← Task management
+ * /tracking            ← Live tracking
+ * /analytics           ← Analytics dashboard
+ * /settings            ← User settings
+ * /admin               ← Admin panel (requires ADMIN role)
+ * 
+ * 
+ * ✨ KEY OPTIMIZATIONS:
+ * ✅ AuthProvider removed (moved to main.tsx for cleaner structure)
+ * ✅ Only ToastProvider in App.tsx (keeps concerns separate)
+ * ✅ No redirect on landing page (/)
+ * ✅ Landing page accessible whether authenticated or not
+ * ✅ Clean public/protected route separation
+ * ✅ Standard nested routing pattern
+ * ✅ ProtectedRoute with role-based access control
+ * ✅ AppLayout wraps all protected routes
+ */
 
 export default App;

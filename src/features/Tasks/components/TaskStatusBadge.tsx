@@ -1,6 +1,7 @@
 // src/features/Tasks/components/TaskStatusBadge.tsx
+// ✅ FIXED - Removed React Native, converted to web
+
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 
 interface TaskStatusBadgeProps {
   status: 'PENDING' | 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
@@ -10,39 +11,25 @@ const TaskStatusBadge: React.FC<TaskStatusBadgeProps> = ({ status }) => {
   const getStatusColor = () => {
     switch (status) {
       case 'PENDING':
-        return '#f8d775'; // Yellow
+        return 'bg-yellow-300 text-gray-900'; // Yellow
       case 'ASSIGNED':
-        return '#5bc0de'; // Blue
+        return 'bg-blue-300 text-gray-900'; // Light Blue
       case 'IN_PROGRESS':
-        return '#f0ad4e'; // Orange
+        return 'bg-orange-400 text-white'; // Orange
       case 'COMPLETED':
-        return '#5cb85c'; // Green
+        return 'bg-green-500 text-white'; // Green
       case 'CANCELLED':
-        return '#d9534f'; // Red
+        return 'bg-red-500 text-white'; // Red
       default:
-        return '#777777'; // Gray
+        return 'bg-gray-400 text-white'; // Gray
     }
   };
 
   return (
-    <View style={[styles.badge, { backgroundColor: getStatusColor() }]}>
-      <Text style={styles.text}>{status.replace('_', ' ')}</Text>
-    </View>
+    <span className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${getStatusColor()}`}>
+      {status.replace(/_/g, ' ')}
+    </span>
   );
 };
-
-const styles = StyleSheet.create({
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-  },
-  text: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-});
 
 export default TaskStatusBadge;

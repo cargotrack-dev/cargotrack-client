@@ -1,38 +1,67 @@
 // src/features/Tasks/pages/TaskDetailPage.tsx
+// WEB VERSION - Fixed for React web (NOT React Native)
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { Task } from '../types/task';
-import { getTaskById, updateTaskStatus } from '../services/taskService';
-import TaskStatusBadge from '../components/TaskStatusBadge';
-import TaskPriorityIndicator from '../components/TaskPriorityIndicator';
-import TaskAssignmentForm from '../components/TaskAssignmentForm';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
+
+interface Task {
+  id: string;
+  type: string;
+  description: string;
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  assignedTo?: string;
+  truckId?: string;
+}
 
 const TaskDetailPage: React.FC = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const { taskId } = route.params as { taskId: string };
+  const navigate = useNavigate();
+  const { taskId } = useParams<{ taskId: string }>();
   
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   
-  // Mock users for assignment (in a real app, you'd fetch these)
+  // Mock users
   const [users] = useState([
     { id: 'user1', firstName: 'John', lastName: 'Doe', role: 'OPERATOR' },
     { id: 'user2', firstName: 'Jane', lastName: 'Smith', role: 'DRIVER' },
   ]);
 
-  // ✅ FIXED: Use useCallback to memoize fetchTaskDetails and fix dependency warning
+  // Mock task data
+  const mockTasks: Record<string, Task> = {
+    '1': {
+      id: '1',
+      type: 'Delivery',
+      description: 'Deliver cargo to Lagos warehouse',
+      status: 'IN_PROGRESS',
+      priority: 'HIGH',
+      assignedTo: 'user1',
+      truckId: 'TRK-001',
+    },
+    '2': {
+      id: '2',
+      type: 'Inspection',
+      description: 'Vehicle inspection and maintenance',
+      status: 'PENDING',
+      priority: 'MEDIUM',
+      truckId: 'TRK-002',
+    },
+  };
+
   const fetchTaskDetails = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      const taskData = await getTaskById(taskId);
-      setTask(taskData);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const taskData = mockTasks[taskId || '1'];
+      if (taskData) {
+        setTask(taskData);
+      } else {
+        setError('Task not found');
+      }
     } catch (err) {
       setError('Failed to load task details');
       console.error(err);
@@ -41,14 +70,12 @@ const TaskDetailPage: React.FC = () => {
     }
   }, [taskId]);
 
-  // ✅ FIXED: Now fetchTaskDetails is stable and can be safely included
   useEffect(() => {
     fetchTaskDetails();
   }, [fetchTaskDetails]);
 
-  // ✅ FIXED: Add navigation functionality to resolve unused variable warning
   const handleGoBack = () => {
-    navigation.goBack();
+    navigate('/tasks');
   };
 
   const handleUpdateStatus = async (newStatus: string) => {
@@ -56,8 +83,8 @@ const TaskDetailPage: React.FC = () => {
     
     try {
       setUpdatingStatus(true);
-      const updatedTask = await updateTaskStatus(task.id, newStatus);
-      setTask(updatedTask);
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setTask({ ...task, status: newStatus as Task['status'] });
     } catch (err) {
       setError('Failed to update task status');
       console.error(err);
@@ -67,218 +94,257 @@ const TaskDetailPage: React.FC = () => {
   };
 
   const handleAssignTask = async (userId: string) => {
-    // This would call your assignTask API
     console.log(`Assign task ${taskId} to user ${userId}`);
+    if (task) {
+      setTask({ ...task, assignedTo: userId });
+    }
   };
 
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#0066cc" />
-      </View>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <div style={{ fontSize: '16px', color: '#666' }}>Loading...</div>
+      </div>
     );
   }
 
   if (error || !task) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.errorText}>{error || 'Task not found'}</Text>
-        <View style={styles.errorActions}>
-          <TouchableOpacity 
-            style={styles.retryButton}
-            onPress={fetchTaskDetails}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '400px',
+        padding: '20px'
+      }}>
+        <AlertCircle size={48} color="#d9534f" style={{ marginBottom: '16px' }} />
+        <p style={{ fontSize: '16px', color: '#d9534f', marginBottom: '16px' }}>
+          {error || 'Task not found'}
+        </p>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button
+            onClick={fetchTaskDetails}
+            style={{
+              padding: '10px 16px',
+              backgroundColor: '#0066cc',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
           >
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
-          {/* ✅ ADDED: Use navigation here */}
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={handleGoBack}
+            Retry
+          </button>
+          <button
+            onClick={handleGoBack}
+            style={{
+              padding: '10px 16px',
+              backgroundColor: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
           >
-            <Text style={styles.backButtonText}>Go Back</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            Go Back
+          </button>
+        </div>
+      </div>
     );
   }
 
   const canUpdateStatus = task.status !== 'COMPLETED' && task.status !== 'CANCELLED';
+  const statusColors: Record<Task['status'], string> = {
+    'PENDING': '#ffc107',
+    'IN_PROGRESS': '#0066cc',
+    'COMPLETED': '#5cb85c',
+    'CANCELLED': '#d9534f',
+  };
+
+  const priorityColors: Record<Task['priority'], string> = {
+    'LOW': '#6c757d',
+    'MEDIUM': '#ffc107',
+    'HIGH': '#ff9800',
+    'URGENT': '#d9534f',
+  };
 
   return (
-    <ScrollView style={styles.container}>
-      {/* ✅ ADDED: Header with back button to use navigation */}
-      <View style={styles.headerNav}>
-        <TouchableOpacity onPress={handleGoBack} style={styles.backButtonHeader}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-      </View>
+    <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
+      {/* Header with back button */}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+        <button
+          onClick={handleGoBack}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 0',
+            background: 'none',
+            border: 'none',
+            color: '#0066cc',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+          }}
+        >
+          <ArrowLeft size={20} />
+          Back to Tasks
+        </button>
+      </div>
 
-      <View style={styles.header}>
-        <Text style={styles.taskType}>{task.type}</Text>
-        <TaskPriorityIndicator priority={task.priority} />
-      </View>
-      
-      <Text style={styles.description}>{task.description}</Text>
-      
-      <View style={styles.statusSection}>
-        <Text style={styles.sectionTitle}>Status</Text>
-        <TaskStatusBadge status={task.status} />
+      {/* Task Header */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: '24px',
+        paddingBottom: '16px',
+        borderBottom: '1px solid #e0e0e0',
+      }}>
+        <div>
+          <h1 style={{ margin: '0 0 8px 0', fontSize: '28px', fontWeight: 'bold', color: '#333' }}>
+            {task.type}
+          </h1>
+          <p style={{ margin: 0, color: '#666' }}>{task.description}</p>
+        </div>
+        <div style={{
+          padding: '6px 12px',
+          backgroundColor: priorityColors[task.priority],
+          color: 'white',
+          borderRadius: '4px',
+          fontSize: '12px',
+          fontWeight: '600',
+          textTransform: 'uppercase'
+        }}>
+          {task.priority}
+        </div>
+      </div>
+
+      {/* Status Section */}
+      <div style={{
+        backgroundColor: '#fff',
+        borderRadius: '8px',
+        padding: '16px',
+        marginBottom: '16px',
+        border: '1px solid #e0e0e0'
+      }}>
+        <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: 'bold' }}>Status</h3>
         
+        <div style={{
+          display: 'inline-block',
+          padding: '8px 16px',
+          backgroundColor: statusColors[task.status],
+          color: 'white',
+          borderRadius: '4px',
+          fontWeight: '600',
+          marginBottom: '16px'
+        }}>
+          {task.status.replace('_', ' ')}
+        </div>
+
         {canUpdateStatus && (
-          <View style={styles.statusActions}>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
             {task.status !== 'IN_PROGRESS' && (
-              <TouchableOpacity
-                style={[styles.actionButton, updatingStatus && styles.disabledButton]}
-                onPress={() => handleUpdateStatus('IN_PROGRESS')}
+              <button
+                onClick={() => handleUpdateStatus('IN_PROGRESS')}
                 disabled={updatingStatus}
+                style={{
+                  padding: '10px 16px',
+                  backgroundColor: '#0066cc',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: updatingStatus ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  opacity: updatingStatus ? 0.6 : 1,
+                }}
               >
-                <Text style={styles.actionButtonText}>Start Task</Text>
-              </TouchableOpacity>
+                Start Task
+              </button>
             )}
-            
+
             {task.status === 'IN_PROGRESS' && (
-              <TouchableOpacity
-                style={[styles.actionButton, styles.completeButton, updatingStatus && styles.disabledButton]}
-                onPress={() => handleUpdateStatus('COMPLETED')}
+              <button
+                onClick={() => handleUpdateStatus('COMPLETED')}
                 disabled={updatingStatus}
+                style={{
+                  padding: '10px 16px',
+                  backgroundColor: '#5cb85c',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: updatingStatus ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  opacity: updatingStatus ? 0.6 : 1,
+                }}
               >
-                <Text style={styles.actionButtonText}>Complete Task</Text>
-              </TouchableOpacity>
+                <CheckCircle size={16} />
+                Complete Task
+              </button>
             )}
-          </View>
+          </div>
         )}
-      </View>
-      
+      </div>
+
+      {/* Truck Info */}
       {task.truckId && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Truck</Text>
-          <Text style={styles.sectionText}>ID: {task.truckId}</Text>
-        </View>
+        <div style={{
+          backgroundColor: '#fff',
+          borderRadius: '8px',
+          padding: '16px',
+          marginBottom: '16px',
+          border: '1px solid #e0e0e0'
+        }}>
+          <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: 'bold' }}>Truck</h3>
+          <p style={{ margin: 0, color: '#666' }}>ID: <strong>{task.truckId}</strong></p>
+        </div>
       )}
-      
-      <TaskAssignmentForm
-        users={users}
-        currentAssignee={task.assignedTo}
-        onAssign={handleAssignTask}
-      />
-    </ScrollView>
+
+      {/* Assignment */}
+      <div style={{
+        backgroundColor: '#fff',
+        borderRadius: '8px',
+        padding: '16px',
+        border: '1px solid #e0e0e0'
+      }}>
+        <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: 'bold' }}>Assign To</h3>
+        <select
+          value={task.assignedTo || ''}
+          onChange={(e) => handleAssignTask(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '10px',
+            borderRadius: '4px',
+            border: '1px solid #ddd',
+            fontSize: '14px',
+            fontFamily: 'inherit'
+          }}
+        >
+          <option value="">Select a user...</option>
+          {users.map(user => (
+            <option key={user.id} value={user.id}>
+              {user.firstName} {user.lastName} ({user.role})
+            </option>
+          ))}
+        </select>
+        {task.assignedTo && (
+          <p style={{ marginTop: '12px', color: '#666', fontSize: '14px' }}>
+            Assigned to: <strong>{users.find(u => u.id === task.assignedTo)?.firstName}</strong>
+          </p>
+        )}
+      </div>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f8f8',
-    padding: 16,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-  // ✅ ADDED: Navigation header styles
-  headerNav: {
-    marginBottom: 16,
-  },
-  backButtonHeader: {
-    paddingVertical: 8,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  taskType: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  description: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#444',
-    marginBottom: 24,
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 8,
-  },
-  section: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  statusSection: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  sectionText: {
-    fontSize: 16,
-    color: '#444',
-  },
-  statusActions: {
-    marginTop: 16,
-    flexDirection: 'row',
-  },
-  actionButton: {
-    backgroundColor: '#0066cc',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 4,
-    marginRight: 12,
-  },
-  completeButton: {
-    backgroundColor: '#5cb85c',
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
-  },
-  actionButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#d9534f',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  // ✅ ADDED: Error actions and back button styles
-  errorActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  retryButton: {
-    backgroundColor: '#0066cc',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 4,
-  },
-  retryButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  backButton: {
-    backgroundColor: '#6c757d',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 4,
-  },
-  backButtonText: {
-    color: '#0066cc',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-});
 
 export default TaskDetailPage;

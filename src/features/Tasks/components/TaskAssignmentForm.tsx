@@ -1,6 +1,7 @@
 // src/features/Tasks/components/TaskAssignmentForm.tsx
+// ✅ FIXED - Removed React Native, converted to web
+
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 
 interface User {
   id: string;
@@ -31,110 +32,56 @@ const TaskAssignmentForm: React.FC<TaskAssignmentFormProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Assign Task</Text>
+    <div className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+      <h3 className="text-lg font-bold mb-4">Assign Task</h3>
       
       {users.length === 0 ? (
-        <Text style={styles.noUsers}>No available users to assign</Text>
+        <p className="text-gray-500 italic mb-4">No available users to assign</p>
       ) : (
-        <View style={styles.userList}>
+        <div className="mb-4 space-y-2">
           {users.map(user => (
-            <TouchableOpacity
+            <button
               key={user.id}
-              style={[
-                styles.userItem,
-                selectedUser === user.id && styles.selectedUser
-              ]}
-              onPress={() => setSelectedUser(user.id)}
+              onClick={() => setSelectedUser(user.id)}
+              className={`
+                w-full p-3 rounded border-2 transition-colors text-left
+                ${selectedUser === user.id 
+                  ? 'border-blue-600 bg-blue-50' 
+                  : 'border-gray-300 hover:border-gray-400 bg-white'
+                }
+              `}
             >
-              <Text style={[
-                styles.userName,
-                selectedUser === user.id && styles.selectedUserText
-              ]}>
+              <p className={`font-medium ${selectedUser === user.id ? 'text-blue-600' : 'text-gray-900'}`}>
                 {user.firstName} {user.lastName}
-              </Text>
-              <Text style={styles.userRole}>{user.role}</Text>
-            </TouchableOpacity>
+              </p>
+              <p className="text-sm text-gray-600 mt-1">{user.role}</p>
+            </button>
           ))}
-        </View>
+        </div>
       )}
       
-      <TouchableOpacity
-        style={[
-          styles.assignButton,
-          (!selectedUser || selectedUser === currentAssignee || isLoading) && styles.disabledButton
-        ]}
-        onPress={handleAssign}
+      <button
+        onClick={handleAssign}
         disabled={!selectedUser || selectedUser === currentAssignee || isLoading}
+        className={`
+          w-full py-3 px-4 rounded font-bold text-white transition-colors
+          ${!selectedUser || selectedUser === currentAssignee || isLoading
+            ? 'bg-gray-400 cursor-not-allowed' 
+            : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
+          }
+        `}
       >
         {isLoading ? (
-          <ActivityIndicator size="small" color="#fff" />
+          <span className="flex items-center justify-center gap-2">
+            <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span>
+            Assigning...
+          </span>
         ) : (
-          <Text style={styles.assignButtonText}>Assign</Text>
+          'Assign'
         )}
-      </TouchableOpacity>
-    </View>
+      </button>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  userList: {
-    marginBottom: 16,
-  },
-  userItem: {
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 4,
-    marginBottom: 8,
-  },
-  selectedUser: {
-    borderColor: '#0066cc',
-    backgroundColor: '#e6f2ff',
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  selectedUserText: {
-    color: '#0066cc',
-  },
-  userRole: {
-    fontSize: 14,
-    color: '#777',
-    marginTop: 4,
-  },
-  noUsers: {
-    fontSize: 16,
-    color: '#777',
-    fontStyle: 'italic',
-    marginBottom: 16,
-  },
-  assignButton: {
-    backgroundColor: '#0066cc',
-    padding: 12,
-    borderRadius: 4,
-    alignItems: 'center',
-  },
-  disabledButton: {
-    backgroundColor: '#cccccc',
-  },
-  assignButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
 
 export default TaskAssignmentForm;

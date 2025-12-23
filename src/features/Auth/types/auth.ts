@@ -59,6 +59,47 @@ export enum UserRole {
   }
   
   /**
+   * Interface for permission constraints
+   */
+  export interface PermissionConstraints {
+    // Existing constraints
+    ownedOnly?: boolean;            // User can only act on resources they created
+    departmentOnly?: boolean;       // User can only act on resources in their department
+    clientRestrictions?: string[];  // Restricted to specific clients
+    valueLimit?: number;            // Value limit (for financial permissions)
+    timeRestriction?: {             // Time-based restriction
+      daysInPast?: number;
+      daysInFuture?: number;
+    };
+    customRestriction?: Record<string, unknown>; // Custom restriction logic
+    
+    // ✅ NEW CUSTOM RESTRICTIONS (for enterprise logistics)
+    regionRestriction?: boolean;
+    vehicleTypeRestriction?: boolean;
+    customerRestriction?: boolean;
+    maxPriorityLevel?: 'standard' | 'express' | 'urgent' | 'critical';
+    allowedStatuses?: string[];
+    budgetLimit?: number;
+    maxWeight?: number; // kg
+    maxDistance?: number; // km
+    workingHours?: {
+      daysOfWeek?: number[]; // 0-6 (Sunday-Saturday)
+      startHour?: number; // 0-23
+      endHour?: number; // 0-23
+    };
+    geofence?: {
+      centerLat: number;
+      centerLng: number;
+      radiusKm: number;
+    };
+    requiredVehicleStatus?: 'active' | 'maintenance' | 'standby';
+    tempControlRequired?: boolean;
+    minApprovalLevel?: number;
+    allowedCompanies?: string[];
+    requiredDocuments?: string[];
+  }
+  
+  /**
    * Interface for a permission
    */
   export interface Permission {
@@ -66,17 +107,7 @@ export enum UserRole {
     resource: ResourceType;
     action: PermissionAction;
     description?: string;
-    constraints?: {    // Optional constraints on the permission
-      ownedOnly?: boolean;            // User can only act on resources they created
-      departmentOnly?: boolean;       // User can only act on resources in their department
-      clientRestrictions?: string[];  // Restricted to specific clients
-      valueLimit?: number;            // Value limit (for financial permissions)
-      timeRestriction?: {             // Time-based restriction
-        daysInPast?: number;
-        daysInFuture?: number;
-      };
-      customRestriction?: Record<string, unknown>; // Custom restriction logic
-    };
+    constraints?: PermissionConstraints;
   }
   
   /**
@@ -123,6 +154,13 @@ export enum UserRole {
       phoneNumber: string;
     };
     notes?: string;
+    
+    // ✅ NEW CUSTOM RESTRICTION PROPERTIES
+    allowedRegions?: string[];
+    allowedVehicleTypes?: string[];
+    allowedCustomers?: string[];
+    blockedCustomers?: string[];
+    budgetUsed?: number;
   }
   
   /**
