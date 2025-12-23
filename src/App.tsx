@@ -8,32 +8,32 @@ import { ToastProvider } from './features/UI/components/ui/toast/ToastProvider';
 import { useThemeInit } from './features/Core/hooks/useTheme.ts';
 
 // ✅ Public pages
-import LandingPage from './pages/LandingPage';
-import RegisterPage from './pages/Register';
+import LandingPage from './pages/LandingPage.tsx';
+import RegisterPage from './pages/Register.tsx';
 
 // ✅ Auth pages
-import Login from './features/Auth/pages/Login';
-import UnauthorizedPage from './features/Auth/pages/UnauthorizedPage';
+import Login from './features/Auth/pages/Login.tsx';
+import UnauthorizedPage from './features/Auth/pages/UnauthorizedPage.tsx';
 
 // ✅ Layout
-import AppLayout from './features/Core/components/AppLayout';
+import AppLayout from './features/Core/components/AppLayout.tsx';
 
 // ✅ All protected pages
-import Dashboard from './features/Dashboard/pages/Dashboard';
-import ShipmentList from './features/Shipments/pages/ShipmentListPage';
-import ShipmentDetails from './features/Shipments/pages/ShipmentDetailsPage';
-import TruckList from './features/Trucks/pages/TruckList';
-import TruckDetails from './features/Trucks/pages/TruckDetails';
-import CargoList from './features/Cargo/pages/CargoList';
-import InvoiceList from './features/Invoices/pages/InvoiceList';
-import InvoiceGenerator from './features/Invoices/pages/InvoiceGenerator';
-import InvoiceDetails from './features/Invoices/pages/InvoiceDetails';
-import TaskList from './features/Tasks/pages/TaskListPage';
-import TaskDetails from './features/Tasks/pages/TaskDetailPage';
-import TrackingDashboard from './features/Tracking/pages/LiveTracking';
-import Analytics from './features/Analytics/pages/Dashboard';
-import Settings from './features/Settings/pages/Settings';
-import UserManagement from './features/Admin/pages/UserManagement';
+import Dashboard from './features/Dashboard/pages/Dashboard.tsx';
+import ShipmentList from './features/Shipments/pages/ShipmentListPage.tsx';
+import ShipmentDetails from './features/Shipments/pages/ShipmentDetailsPage.tsx';
+import TruckList from './features/Trucks/pages/TruckList.tsx';
+import TruckDetails from './features/Trucks/pages/TruckDetails.tsx';
+import CargoList from './features/Cargo/pages/CargoList.tsx';
+import InvoiceList from './features/Invoices/pages/InvoiceList.tsx';
+import InvoiceGenerator from './features/Invoices/pages/InvoiceGenerator.tsx';
+import InvoiceDetails from './features/Invoices/pages/InvoiceDetails.tsx';
+import TaskList from './features/Tasks/pages/TaskListPage.tsx';
+import TaskDetails from './features/Tasks/pages/TaskDetailPage.tsx';
+import TrackingDashboard from './features/Tracking/pages/LiveTracking.tsx';
+import Analytics from './features/Analytics/pages/Dashboard.tsx';
+import Settings from './features/Settings/pages/Settings.tsx';
+import UserManagement from './features/Admin/pages/UserManagement.tsx';
 
 /**
  * ProtectedRoute Component
