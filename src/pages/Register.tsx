@@ -346,7 +346,7 @@ const Register: React.FC = () => {
               </label>
               <input
                 type="text"
-                placeholder="John Doe"
+                placeholder="Idris Alamutu"
                 style={inputStyle}
                 onFocus={(e) => Object.assign(e.currentTarget.style, inputFocusStyle)}
                 onBlur={(e) => Object.assign(e.currentTarget.style, inputStyle)}
