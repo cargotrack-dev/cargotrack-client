@@ -5,7 +5,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './features/Auth/contexts/AuthProvider';
 import { ToastProvider } from './features/UI/components/ui/toast/ToastProvider';
-import { useThemeInit } from './features/Core/hooks/useTheme';
+import { useThemeInit } from './features/Core/hooks/useTheme.ts';
 
 // ✅ Public pages
 import LandingPage from './pages/LandingPage';
