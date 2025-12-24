@@ -31,9 +31,14 @@ import InvoiceDetails from './features/Invoices/pages/InvoiceDetails.tsx';
 import TaskList from './features/Tasks/pages/TaskListPage.tsx';
 import TaskDetails from './features/Tasks/pages/TaskDetailPage.tsx';
 import TrackingDashboard from './features/Tracking/pages/LiveTracking.tsx';
+import DriversList from './features/Drivers/pages/DriversList.tsx';
+import DriverDetails from './features/Drivers/pages/DriverDetails.tsx';
 import Analytics from './features/Analytics/pages/Dashboard.tsx';
 import Settings from './features/Settings/pages/Settings.tsx';
 import UserManagement from './features/Admin/pages/UserManagement.tsx';
+import Maintenance from './features/Maintenance/pages/MaintenanceList.tsx';
+import ClientList from './features/Clients/pages/ClientDashboard.tsx';
+import ClientDetails from './features/Clients/pages/ClientDetails.tsx';
 
 /**
  * ProtectedRoute Component
@@ -125,8 +130,18 @@ function App() {
             {/* Tracking */}
             <Route path="/tracking" element={<TrackingDashboard />} />
 
+            {/* Drivers */}
+            <Route path="/drivers" element={<DriversList />} />
+            <Route path="/drivers/:id" element={<DriverDetails />} />
+
             {/* Analytics */}
             <Route path="/analytics" element={<Analytics />} />
+
+            <Route path="/clients" element={<ClientList />} />
+            <Route path="/clients/:id" element={<ClientDetails />} />
+
+             {/* Maintenance */}
+            <Route path="/maintenance" element={<Maintenance />} />
 
             {/* Settings */}
             <Route path="/settings" element={<Settings />} />

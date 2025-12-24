@@ -1,703 +1,1219 @@
 // src/features/Drivers/pages/DriverDetails.tsx
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Calendar, 
-  Truck, 
-  CheckCircle, 
-  XCircle,
-  Package,
-  ArrowLeft,
-  Edit,
-  AlertTriangle
+// 🚀 MODERNIZED with Working Edit & Message Functions
+
+import React, { useState, useMemo } from 'react';
+import {
+  ArrowLeft, Mail, MapPin, Award, FileText, Truck,
+  Download, Upload, Trash2, Edit2, TrendingUp, Phone as PhoneIcon, X
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../UI/components/ui/card';
-import { Button } from '../../UI/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../UI/components/ui/tabs';
-import { Badge } from '../../UI/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '../../UI/components/ui/avatar';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../UI/components/ui/table';
-import { ResourceType, PermissionAction } from '../../Core/types/auth';
-import PermissionGate from '../../Core/auth/PermissionGate';
+import { useNavigate, useParams } from 'react-router-dom';
 
-// Define driver interface
-interface Driver {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  licenseNumber: string;
-  licenseExpiry: Date;
-  address: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-  dateOfBirth: Date;
-  dateHired: Date;
-  status: 'active' | 'inactive' | 'on_leave' | 'suspended';
-  profileImage?: string;
-  notes?: string;
-  emergencyContact?: {
-    name: string;
-    relationship: string;
-    phone: string;
-  };
-}
-
-// Define vehicle interface
-interface Vehicle {
-  id: string;
-  registrationNumber: string;
-  model: string;
+// ==================== TYPES ====================
+interface License {
   type: string;
-  status: string;
+  number: string;
+  expiryDate: string;
+  status: 'ACTIVE' | 'EXPIRING_SOON' | 'EXPIRED';
+  restrictions: string[];
 }
 
-// Define shipment interface
-interface Shipment {
-  id: string;
-  reference: string;
-  origin: string;
-  destination: string;
-  departureDate: Date;
-  arrivalDate: Date;
-  status: 'pending' | 'in_transit' | 'delivered' | 'cancelled';
-}
-
-// Define document interface
 interface Document {
   id: string;
-  title: string;
+  name: string;
   type: string;
-  uploadDate: Date;
-  expiryDate?: Date;
-  fileUrl: string;
+  uploadedDate: string;
+  expiryDate?: string;
+  status: 'VALID' | 'EXPIRING_SOON' | 'EXPIRED';
+  fileSize: string;
 }
 
-const DriverDetails: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [driver, setDriver] = useState<Driver | null>(null);
-  const [assignedVehicle, setAssignedVehicle] = useState<Vehicle | null>(null);
-  const [shipments, setShipments] = useState<Shipment[]>([]);
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface Shipment {
+  id: string;
+  trackingNumber: string;
+  origin: string;
+  destination: string;
+  status: 'DELIVERED' | 'IN_TRANSIT' | 'CANCELLED';
+  completedDate: string;
+  revenue: number;
+  clientRating: number;
+}
 
-  useEffect(() => {
-    const fetchDriverData = async () => {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        // In a real app, this would be API calls
-        // const response = await api.get(`/drivers/${id}`);
-        // setDriver(response.data);
-        
-        // Mock data for demonstration
-        setTimeout(() => {
-          // Mock driver data
-          const mockDriver: Driver = {
-            id: id || 'driver-001',
-            firstName: 'John',
-            lastName: 'Doe',
-            email: 'john.doe@example.com',
-            phone: '+1 (555) 123-4567',
-            licenseNumber: 'DL-12345678',
-            licenseExpiry: new Date('2025-06-30'),
-            address: '123 Trucking Lane',
-            city: 'Chicago',
-            state: 'IL',
-            postalCode: '60601',
-            country: 'United States',
-            dateOfBirth: new Date('1985-04-15'),
-            dateHired: new Date('2020-03-10'),
-            status: 'active',
-            profileImage: '',
-            notes: 'Excellent driver with clean record. Prefers long-haul routes.',
-            emergencyContact: {
-              name: 'Jane Doe',
-              relationship: 'Spouse',
-              phone: '+1 (555) 987-6543'
-            }
-          };
-          
-          // Mock vehicle data
-          const mockVehicle: Vehicle = {
-            id: 'vehicle-001',
-            registrationNumber: 'TRK-1001',
-            model: 'Freightliner Cascadia',
-            type: 'Semi-Truck',
-            status: 'active'
-          };
-          
-          // Mock shipments data
-          const mockShipments: Shipment[] = [
-            {
-              id: 'shipment-001',
-              reference: 'SH-2023-001',
-              origin: 'Chicago, IL',
-              destination: 'Columbus, OH',
-              departureDate: new Date('2023-05-15T08:00:00'),
-              arrivalDate: new Date('2023-05-15T16:30:00'),
-              status: 'delivered'
-            },
-            {
-              id: 'shipment-002',
-              reference: 'SH-2023-025',
-              origin: 'Detroit, MI',
-              destination: 'Indianapolis, IN',
-              departureDate: new Date('2023-05-18T07:30:00'),
-              arrivalDate: new Date('2023-05-18T14:45:00'),
-              status: 'delivered'
-            },
-            {
-              id: 'shipment-003',
-              reference: 'SH-2023-042',
-              origin: 'Chicago, IL',
-              destination: 'St. Louis, MO',
-              departureDate: new Date('2023-05-20T06:15:00'),
-              arrivalDate: new Date('2023-05-20T15:30:00'),
-              status: 'in_transit'
-            }
-          ];
-          
-          // Mock documents data
-          const mockDocuments: Document[] = [
-            {
-              id: 'doc-001',
-              title: 'Driver\'s License',
-              type: 'license',
-              uploadDate: new Date('2022-01-15'),
-              expiryDate: new Date('2025-06-30'),
-              fileUrl: '/files/license.pdf'
-            },
-            {
-              id: 'doc-002',
-              title: 'Medical Certificate',
-              type: 'medical',
-              uploadDate: new Date('2023-02-10'),
-              expiryDate: new Date('2024-02-10'),
-              fileUrl: '/files/medical.pdf'
-            },
-            {
-              id: 'doc-003',
-              title: 'Employment Contract',
-              type: 'contract',
-              uploadDate: new Date('2020-03-10'),
-              fileUrl: '/files/contract.pdf'
-            }
-          ];
-          
-          setDriver(mockDriver);
-          setAssignedVehicle(mockVehicle);
-          setShipments(mockShipments);
-          setDocuments(mockDocuments);
-          setLoading(false);
-        }, 1000);
-        
-      } catch (err) {
-        console.error('Error fetching driver data:', err);
-        setError('Failed to load driver data. Please try again later.');
-        setLoading(false);
-      }
-    };
-    
-    fetchDriverData();
-  }, [id]);
-  
-  const handleEditDriver = () => {
-    navigate(`/drivers/edit/${id}`);
+interface Driver {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: 'ACTIVE' | 'ON_LEAVE' | 'INACTIVE';
+  hireDate: string;
+  licenseNumber: string;
+  licenseExpiry: string;
+  totalShipments: number;
+  totalRevenue: number;
+  averageRating: number;
+  profileImage?: string;
+  address: string;
+  emergencyContact: {
+    name: string;
+    phone: string;
   };
-  
-  const handleAssignVehicle = () => {
-    navigate(`/drivers/${id}/assign-vehicle`);
+  assignedTruck?: {
+    id: string;
+    name: string;
+    licensePlate: string;
   };
-  
-  const handleViewShipment = (shipmentId: string) => {
-    navigate(`/shipments/${shipmentId}`);
-  };
-  
-  const getStatusBadge = (status: string) => {
-    switch(status) {
-      case 'active':
-        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
-      case 'inactive':
-        return <Badge className="bg-gray-100 text-gray-800">Inactive</Badge>;
-      case 'on_leave':
-        return <Badge className="bg-yellow-100 text-yellow-800">On Leave</Badge>;
-      case 'suspended':
-        return <Badge className="bg-red-100 text-red-800">Suspended</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
-    }
-  };
-  
-  const getShipmentStatusBadge = (status: string) => {
-    switch(status) {
-      case 'pending':
-        return <Badge className="bg-gray-100 text-gray-800">Pending</Badge>;
-      case 'in_transit':
-        return <Badge className="bg-blue-100 text-blue-800">In Transit</Badge>;
-      case 'delivered':
-        return <Badge className="bg-green-100 text-green-800">Delivered</Badge>;
-      case 'cancelled':
-        return <Badge className="bg-red-100 text-red-800">Cancelled</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
-    }
-  };
-  
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-  
-  const formatDateTime = (date: Date) => {
-    return new Date(date).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-  
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-  
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[400px]">
-        <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Driver</h3>
-        <p className="text-gray-500 mb-4">{error}</p>
-        <Button variant="outline" onClick={() => navigate('/drivers')}>
-          Back to Drivers
-        </Button>
-      </div>
-    );
-  }
-  
-  if (!driver) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[400px]">
-        <AlertTriangle className="w-12 h-12 text-yellow-500 mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Driver Not Found</h3>
-        <p className="text-gray-500 mb-4">The requested driver could not be found.</p>
-        <Button variant="outline" onClick={() => navigate('/drivers')}>
-          Back to Drivers
-        </Button>
-      </div>
-    );
-  }
+  licenses: License[];
+  documents: Document[];
+  shipments: Shipment[];
+}
+
+// ==================== MOCK DATA ====================
+const MOCK_DRIVER: Driver = {
+  id: 'drv1',
+  name: 'John David Smith',
+  email: 'john.smith@cargotrack.com',
+  phone: '+1 (555) 234-5678',
+  status: 'ACTIVE',
+  hireDate: '2020-03-15',
+  licenseNumber: 'DL-1234567-CA',
+  licenseExpiry: '2026-05-20',
+  totalShipments: 248,
+  totalRevenue: 125000,
+  averageRating: 4.8,
+  profileImage: '👨‍💼',
+  address: '123 Oak Street, Los Angeles, CA 90001',
+  emergencyContact: {
+    name: 'Mary Smith',
+    phone: '+1 (555) 234-5679'
+  },
+  assignedTruck: {
+    id: 't1',
+    name: 'Truck-001',
+    licensePlate: 'XYZ-1234'
+  },
+  licenses: [
+    { type: 'Class A CDL', number: 'DL-1234567-CA', expiryDate: '2026-05-20', status: 'ACTIVE', restrictions: [] },
+    { type: 'Class B', number: 'DL-0987654-CA', expiryDate: '2024-12-15', status: 'EXPIRING_SOON', restrictions: ['No doubles'] }
+  ],
+  documents: [
+    { id: 'doc1', name: 'Medical Certificate', type: 'Certificate', uploadedDate: '2024-01-10', expiryDate: '2025-01-10', status: 'VALID', fileSize: '2.3 MB' },
+    { id: 'doc2', name: 'Background Check', type: 'Verification', uploadedDate: '2023-06-20', status: 'VALID', fileSize: '1.1 MB' },
+    { id: 'doc3', name: 'Insurance Form', type: 'Insurance', uploadedDate: '2024-03-15', expiryDate: '2025-03-15', status: 'EXPIRING_SOON', fileSize: '0.8 MB' }
+  ],
+  shipments: [
+    { id: 'ship1', trackingNumber: 'TRK-2024-001', origin: 'Los Angeles, CA', destination: 'San Francisco, CA', status: 'DELIVERED', completedDate: '2024-12-20', revenue: 450, clientRating: 5 },
+    { id: 'ship2', trackingNumber: 'TRK-2024-002', origin: 'San Francisco, CA', destination: 'Sacramento, CA', status: 'DELIVERED', completedDate: '2024-12-18', revenue: 350, clientRating: 4.8 },
+    { id: 'ship3', trackingNumber: 'TRK-2024-003', origin: 'Sacramento, CA', destination: 'Los Angeles, CA', status: 'DELIVERED', completedDate: '2024-12-15', revenue: 500, clientRating: 5 }
+  ]
+};
+
+// ==================== UTILITY FUNCTIONS ====================
+const formatDate = (date: string): string => new Date(date).toLocaleDateString('en-US', {
+  month: 'long', day: 'numeric', year: 'numeric'
+});
+
+const formatCurrency = (amount: number): string => `$${amount.toLocaleString()}`;
+
+const getDaysUntilExpiry = (expiryDate: string): number => {
+  const diffMs = new Date(expiryDate).getTime() - Date.now();
+  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+};
+
+const getExpiryStatus = (expiryDate: string): 'VALID' | 'EXPIRING_SOON' | 'EXPIRED' => {
+  const daysUntil = getDaysUntilExpiry(expiryDate);
+  if (daysUntil < 0) return 'EXPIRED';
+  if (daysUntil <= 30) return 'EXPIRING_SOON';
+  return 'VALID';
+};
+
+const STATUS_COLORS = {
+  ACTIVE: { bgColor: '#dcfce7', textColor: '#166534', label: 'Active' },
+  ON_LEAVE: { bgColor: '#fef3c7', textColor: '#92400e', label: 'On Leave' },
+  INACTIVE: { bgColor: '#f3f4f6', textColor: '#374151', label: 'Inactive' }
+};
+
+const DOCUMENT_STATUS_COLORS = {
+  VALID: { icon: '✅', color: '#16a34a', bgColor: '#f0fdf4' },
+  EXPIRING_SOON: { icon: '⚠️', color: '#ea580c', bgColor: '#fff7ed' },
+  EXPIRED: { icon: '❌', color: '#dc2626', bgColor: '#fef2f2' }
+};
+
+// ==================== DOCUMENT CARD ====================
+interface DocumentCardProps {
+  document: Document;
+  onDownload: () => void;
+}
+
+const DocumentCard: React.FC<DocumentCardProps> = ({ document, onDownload }) => {
+  const statusConfig = DOCUMENT_STATUS_COLORS[document.status];
+  const daysUntil = document.expiryDate ? getDaysUntilExpiry(document.expiryDate) : null;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-start mb-6">
-        <div className="flex items-center">
-          <Button variant="outline" onClick={() => navigate('/drivers')} className="mr-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold">Driver Details</h1>
-        </div>
-        
-        <PermissionGate
-          permissions={{ resource: ResourceType.DRIVER, action: PermissionAction.UPDATE }}
-        >
-          <Button onClick={handleEditDriver}>
-            <Edit className="h-4 w-4 mr-2" />
-            Edit Driver
-          </Button>
-        </PermissionGate>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Driver Profile Card */}
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle>Driver Profile</CardTitle>
-            <CardDescription>Personal and contact information</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="flex flex-col items-center mb-6">
-              <Avatar className="h-24 w-24 mb-4">
-                {driver.profileImage ? (
-                  <AvatarImage src={driver.profileImage} alt={`${driver.firstName} ${driver.lastName}`} />
-                ) : (
-                  <AvatarFallback className="bg-blue-100 text-blue-600 text-xl">
-                    {driver.firstName[0]}{driver.lastName[0]}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              <h3 className="text-xl font-bold">{driver.firstName} {driver.lastName}</h3>
-              <div className="flex items-center mt-2">
-                {getStatusBadge(driver.status)}
-              </div>
+    <div
+      style={{
+        backgroundColor: statusConfig.bgColor,
+        border: '1px solid #e5e7eb',
+        borderRadius: '8px',
+        padding: '16px',
+        marginBottom: '12px',
+        transition: 'box-shadow 0.3s ease',
+        cursor: 'pointer'
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)')}
+      onMouseLeave={(e) => (e.currentTarget.style.boxShadow = 'none')}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '24px' }}>{statusConfig.icon}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h4 style={{ fontWeight: 'bold', color: '#111827', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {document.name}
+              </h4>
+              <p style={{ fontSize: '12px', color: '#6b7280', margin: '4px 0 0 0' }}>{document.type}</p>
             </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-start">
-                <Mail className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium">{driver.email}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <Phone className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
-                <div>
-                  <p className="text-sm text-gray-500">Phone</p>
-                  <p className="font-medium">{driver.phone}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <MapPin className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
-                <div>
-                  <p className="text-sm text-gray-500">Address</p>
-                  <p className="font-medium">{driver.address}</p>
-                  <p className="font-medium">{driver.city}, {driver.state} {driver.postalCode}</p>
-                  <p className="font-medium">{driver.country}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <Calendar className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
-                <div>
-                  <p className="text-sm text-gray-500">Date of Birth</p>
-                  <p className="font-medium">{formatDate(driver.dateOfBirth)}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <Calendar className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
-                <div>
-                  <p className="text-sm text-gray-500">Date Hired</p>
-                  <p className="font-medium">{formatDate(driver.dateHired)}</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* License and Emergency Contact Card */}
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle>Driver Information</CardTitle>
-            <CardDescription>License and emergency contact details</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-md font-semibold mb-2">License Information</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">License Number:</span>
-                    <span className="font-medium">{driver.licenseNumber}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Expiry Date:</span>
-                    <span className="font-medium">{formatDate(driver.licenseExpiry)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Status:</span>
-                    <span className={`font-medium ${
-                      new Date(driver.licenseExpiry) > new Date() ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {new Date(driver.licenseExpiry) > new Date() ? 'Valid' : 'Expired'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              {driver.emergencyContact && (
-                <div>
-                  <h3 className="text-md font-semibold mb-2">Emergency Contact</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Name:</span>
-                      <span className="font-medium">{driver.emergencyContact.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Relationship:</span>
-                      <span className="font-medium">{driver.emergencyContact.relationship}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Phone:</span>
-                      <span className="font-medium">{driver.emergencyContact.phone}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {driver.notes && (
-                <div>
-                  <h3 className="text-md font-semibold mb-2">Notes</h3>
-                  <p className="text-gray-700">{driver.notes}</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Assigned Vehicle Card */}
-        <Card>
-          <CardHeader className="pb-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <CardTitle>Assigned Vehicle</CardTitle>
-                <CardDescription>Current vehicle assignment</CardDescription>
-              </div>
-              <PermissionGate
-                permissions={{ resource: ResourceType.VEHICLE, action: PermissionAction.UPDATE }}
-              >
-                <Button size="sm" variant="outline" onClick={handleAssignVehicle}>
-                  Assign
-                </Button>
-              </PermissionGate>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            {assignedVehicle ? (
-              <div>
-                <div className="flex items-center justify-center my-6">
-                  <Truck className="h-16 w-16 text-blue-500" />
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Registration:</span>
-                    <span className="font-medium">{assignedVehicle.registrationNumber}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Model:</span>
-                    <span className="font-medium">{assignedVehicle.model}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Type:</span>
-                    <span className="font-medium">{assignedVehicle.type}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Status:</span>
-                    <span className="font-medium">
-                      {assignedVehicle.status === 'active' ? (
-                        <span className="flex items-center text-green-600">
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Active
-                        </span>
-                      ) : (
-                        <span className="flex items-center text-red-600">
-                          <XCircle className="h-4 w-4 mr-1" />
-                          Inactive
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <Button variant="outline" className="w-full">
-                    View Vehicle Details
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-48">
-                <Truck className="h-12 w-12 text-gray-300 mb-4" />
-                <p className="text-gray-500 mb-4">No vehicle currently assigned</p>
-                <PermissionGate
-                  permissions={{ resource: ResourceType.VEHICLE, action: PermissionAction.UPDATE }}
-                >
-                  <Button variant="outline" onClick={handleAssignVehicle}>
-                    Assign Vehicle
-                  </Button>
-                </PermissionGate>
-              </div>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
+            <span>📤 {formatDate(document.uploadedDate)}</span>
+            {document.expiryDate && (
+              <span style={{ color: daysUntil !== null && daysUntil < 0 ? '#dc2626' : '#6b7280', fontWeight: daysUntil !== null && daysUntil < 0 ? 'bold' : 'normal' }}>
+                📅 Expires: {formatDate(document.expiryDate)}
+                {daysUntil !== null && daysUntil < 0 && ' (EXPIRED)'}
+              </span>
             )}
-          </CardContent>
-        </Card>
+            <span>💾 {document.fileSize}</span>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '4px' }}>
+          <button
+            onClick={onDownload}
+            style={{
+              width: '32px',
+              height: '32px',
+              padding: '0',
+              border: 'none',
+              backgroundColor: 'transparent',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '6px',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+          >
+            <Download size={16} />
+          </button>
+          <button
+            style={{
+              width: '32px',
+              height: '32px',
+              padding: '0',
+              border: 'none',
+              backgroundColor: 'transparent',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '6px',
+              color: '#dc2626',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#fee2e2')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </div>
-      
-      {/* Tabs for Shipments and Documents */}
-      <div className="mt-8">
-        <Tabs defaultValue="shipments">
-          <TabsList className="mb-6">
-            <TabsTrigger value="shipments">Shipments</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="shipments">
-            <Card>
-              <CardHeader>
-                <CardTitle>Shipment History</CardTitle>
-                <CardDescription>Recent and upcoming shipments</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Reference</TableHead>
-                        <TableHead>Route</TableHead>
-                        <TableHead>Departure</TableHead>
-                        <TableHead>Arrival</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {shipments.length > 0 ? (
-                        shipments.map(shipment => (
-                          <TableRow key={shipment.id} className="cursor-pointer hover:bg-gray-50">
-                            <TableCell className="font-medium">{shipment.reference}</TableCell>
-                            <TableCell>
-                              <div className="flex flex-col">
-                                <span className="text-sm">From: {shipment.origin}</span>
-                                <span className="text-sm">To: {shipment.destination}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell>{formatDateTime(shipment.departureDate)}</TableCell>
-                            <TableCell>{formatDateTime(shipment.arrivalDate)}</TableCell>
-                            <TableCell>{getShipmentStatusBadge(shipment.status)}</TableCell>
-                            <TableCell>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => handleViewShipment(shipment.id)}
-                              >
-                                View
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                            No shipments found for this driver.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-              <CardFooter className="border-t px-6 py-4">
-                <div className="flex justify-between items-center w-full">
-                  <div className="text-sm text-gray-500">
-                    Showing {shipments.length} shipments
-                  </div>
-                  <Button variant="outline" size="sm">
-                    <Package className="h-4 w-4 mr-2" />
-                    Assign Shipment
-                  </Button>
-                </div>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="documents">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle>Driver Documents</CardTitle>
-                    <CardDescription>Licenses, certifications, and other documents</CardDescription>
-                  </div>
-                  <PermissionGate
-                    permissions={{ resource: ResourceType.DOCUMENT, action: PermissionAction.CREATE }}
+    </div>
+  );
+};
+
+// ==================== SHIPMENT ROW ====================
+interface ShipmentRowProps {
+  shipment: Shipment;
+  onView: (shipment: Shipment) => void;
+}
+
+const ShipmentRow: React.FC<ShipmentRowProps> = ({ shipment, onView }) => {
+  const statusConfig = {
+    DELIVERED: { icon: '✅', bgColor: '#f0fdf4' },
+    IN_TRANSIT: { icon: '🚚', bgColor: '#eff6ff' },
+    CANCELLED: { icon: '❌', bgColor: '#f9fafb' }
+  };
+
+  const config = statusConfig[shipment.status];
+
+  return (
+    <div
+      style={{
+        backgroundColor: config.bgColor,
+        border: '1px solid #e5e7eb',
+        borderRadius: '8px',
+        padding: '16px',
+        marginBottom: '12px',
+        cursor: 'pointer',
+        transition: 'box-shadow 0.3s ease'
+      }}
+      onClick={() => onView(shipment)}
+      onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)')}
+      onMouseLeave={(e) => (e.currentTarget.style.boxShadow = 'none')}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '20px' }}>{config.icon}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h4 style={{ fontWeight: 'bold', color: '#111827', margin: 0 }}>{shipment.trackingNumber}</h4>
+              <p style={{ fontSize: '14px', color: '#6b7280', margin: '4px 0 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {shipment.origin} → {shipment.destination}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+            <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827' }}>{shipment.clientRating}</span>
+            <span>⭐</span>
+          </div>
+          <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#16a34a', margin: '0' }}>{formatCurrency(shipment.revenue)}</p>
+          <p style={{ fontSize: '12px', color: '#6b7280', margin: '4px 0 0 0' }}>{formatDate(shipment.completedDate)}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== EDIT MODAL ====================
+interface EditModalProps {
+  driver: Driver;
+  onClose: () => void;
+  onSave: (updatedDriver: Driver) => void;
+}
+
+const EditModal: React.FC<EditModalProps> = ({ driver, onClose, onSave }) => {
+  const [formData, setFormData] = React.useState(driver);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+    onClose();
+  };
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: '0',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
+          padding: '32px',
+          maxWidth: '500px',
+          width: '90%',
+          maxHeight: '90vh',
+          overflowY: 'auto'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', margin: 0 }}>
+            Edit Driver
+          </h2>
+          <button
+            onClick={onClose}
+            style={{
+              border: 'none',
+              backgroundColor: 'transparent',
+              cursor: 'pointer',
+              color: '#6b7280',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <label style={{ fontSize: '13px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>
+              Full Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                boxSizing: 'border-box',
+                outline: 'none'
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontSize: '13px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                boxSizing: 'border-box',
+                outline: 'none'
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontSize: '13px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>
+              Phone
+            </label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                boxSizing: 'border-box',
+                outline: 'none'
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontSize: '13px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>
+              Address
+            </label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                boxSizing: 'border-box',
+                outline: 'none'
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontSize: '13px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>
+              Status
+            </label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                boxSizing: 'border-box',
+                outline: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="ACTIVE">Active</option>
+              <option value="ON_LEAVE">On Leave</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+            <button
+              type="submit"
+              style={{
+                flex: 1,
+                padding: '10px 16px',
+                backgroundColor: '#2563eb',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600'
+              }}
+            >
+              Save Changes
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                flex: 1,
+                padding: '10px 16px',
+                backgroundColor: '#f3f4f6',
+                color: '#374151',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600'
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// ==================== MESSAGE MODAL ====================
+interface MessageModalProps {
+  driver: Driver;
+  onClose: () => void;
+  onSend: (message: string) => void;
+}
+
+const MessageModal: React.FC<MessageModalProps> = ({ driver, onClose, onSend }) => {
+  const [message, setMessage] = React.useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (message.trim()) {
+      onSend(message);
+      setMessage('');
+      onClose();
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: '0',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
+          padding: '32px',
+          maxWidth: '500px',
+          width: '90%'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827', margin: 0 }}>
+            Send Message to {driver.name}
+          </h2>
+          <button
+            onClick={onClose}
+            style={{
+              border: 'none',
+              backgroundColor: 'transparent',
+              cursor: 'pointer',
+              color: '#6b7280'
+            }}
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <label style={{ fontSize: '13px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>
+              Message
+            </label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Type your message..."
+              rows={4}
+              style={{
+                width: '100%',
+                padding: '12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                boxSizing: 'border-box',
+                outline: 'none',
+                fontFamily: 'inherit',
+                resize: 'none'
+              }}
+            />
+          </div>
+
+          <p style={{ fontSize: '12px', color: '#6b7280', margin: 0 }}>
+            Message will be sent to {driver.email}
+          </p>
+
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              type="submit"
+              style={{
+                flex: 1,
+                padding: '10px 16px',
+                backgroundColor: '#2563eb',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600'
+              }}
+            >
+              Send Message
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                flex: 1,
+                padding: '10px 16px',
+                backgroundColor: '#f3f4f6',
+                color: '#374151',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600'
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// ==================== MAIN COMPONENT ====================
+const DriverDetails: React.FC = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [driver, setDriver] = React.useState<Driver>(MOCK_DRIVER);
+  const [activeTab, setActiveTab] = React.useState('license');
+  const [showEditModal, setShowEditModal] = React.useState(false);
+  const [showMessageModal, setShowMessageModal] = React.useState(false);
+
+  const statusConfig = STATUS_COLORS[driver.status];
+  const licenseStatus = getExpiryStatus(driver.licenseExpiry);
+  const licenseStatusConfig = DOCUMENT_STATUS_COLORS[licenseStatus];
+
+  const stats = useMemo(() => ({
+    totalShipments: driver.shipments.length,
+    totalRevenue: driver.shipments.reduce((sum, s) => sum + s.revenue, 0),
+    averageRating: driver.averageRating,
+    expiringDocuments: driver.documents.filter(d => d.status === 'EXPIRING_SOON' || d.status === 'EXPIRED').length
+  }), [driver]);
+
+  const handleSaveDriver = (updatedDriver: Driver) => {
+    setDriver(updatedDriver);
+    alert('Driver updated successfully!');
+  };
+
+  const handleSendMessage = (message: string) => {
+    console.log(`Message sent to ${driver.name}: ${message}`);
+    alert(`Message sent to ${driver.name}!`);
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom right, #f8fafc, #f1f5f9)',
+        padding: '24px 16px',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}
+    >
+      {/* Back Button */}
+      <button
+        onClick={() => navigate('/drivers')}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          color: '#2563eb',
+          backgroundColor: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontWeight: '600',
+          marginBottom: '24px',
+          transition: 'color 0.2s'
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = '#1d4ed8')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = '#2563eb')}
+      >
+        <ArrowLeft size={16} />
+        Back to Drivers
+      </button>
+
+      {/* Header Card */}
+      <div
+        style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+          overflow: 'hidden',
+          marginBottom: '24px'
+        }}
+      >
+        {/* Gradient Top */}
+        <div
+          style={{
+            height: '96px',
+            background: 'linear-gradient(to right, #3b82f6, #1d4ed8)'
+          }}
+        ></div>
+
+        {/* Content */}
+        <div style={{ padding: '24px', marginTop: '-48px', position: 'relative' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+            {/* Profile Section */}
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
+              <div
+                style={{
+                  width: '128px',
+                  height: '128px',
+                  borderRadius: '8px',
+                  backgroundColor: 'white',
+                  border: '4px solid #2563eb',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                  fontSize: '48px'
+                }}
+              >
+                {driver.profileImage}
+              </div>
+
+              <div style={{ flex: 1 }}>
+                <h1 style={{ fontSize: '32px', fontWeight: 'bold', color: '#111827', margin: '0' }}>
+                  {driver.name}
+                </h1>
+                <p style={{ color: '#6b7280', margin: '4px 0 0 0' }}>Driver ID: {driver.id}</p>
+
+                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                  <span
+                    style={{
+                      backgroundColor: statusConfig.bgColor,
+                      color: statusConfig.textColor,
+                      padding: '4px 12px',
+                      borderRadius: '20px',
+                      fontSize: '13px',
+                      fontWeight: '500'
+                    }}
                   >
-                    <Button size="sm">
-                      Upload Document
-                    </Button>
-                  </PermissionGate>
+                    {statusConfig.label}
+                  </span>
+                  <span
+                    style={{
+                      border: '1px solid #e5e7eb',
+                      color: '#6b7280',
+                      padding: '4px 12px',
+                      borderRadius: '20px',
+                      fontSize: '13px',
+                      fontWeight: '500'
+                    }}
+                  >
+                    Hired {formatDate(driver.hireDate)}
+                  </span>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Document Title</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Upload Date</TableHead>
-                        <TableHead>Expiry Date</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {documents.length > 0 ? (
-                        documents.map(document => (
-                          <TableRow key={document.id}>
-                            <TableCell className="font-medium">{document.title}</TableCell>
-                            <TableCell className="capitalize">{document.type}</TableCell>
-                            <TableCell>{formatDate(document.uploadDate)}</TableCell>
-                            <TableCell>
-                              {document.expiryDate ? formatDate(document.expiryDate) : 'N/A'}
-                            </TableCell>
-                            <TableCell>
-                              {document.expiryDate ? (
-                                new Date(document.expiryDate) > new Date() ? (
-                                  <Badge className="bg-green-100 text-green-800">Valid</Badge>
-                                ) : (
-                                  <Badge className="bg-red-100 text-red-800">Expired</Badge>
-                                )
-                              ) : (
-                                <Badge className="bg-gray-100 text-gray-800">No Expiry</Badge>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex space-x-2">
-                                <Button size="sm" variant="ghost">
-                                  <a 
-                                    href={document.fileUrl} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                  >
-                                    View
-                                  </a>
-                                </Button>
-                                <Button size="sm" variant="ghost">
-                                  <a 
-                                    href={document.fileUrl} 
-                                    download={document.title}
-                                  >
-                                    Download
-                                  </a>
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                            No documents found for this driver.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    border: '1px solid #e5e7eb',
+                    backgroundColor: 'white',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#374151',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'white')}
+                >
+                  <Edit2 size={16} />
+                  Edit
+                </button>
+                <button
+                  onClick={() => setShowMessageModal(true)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    border: '1px solid #e5e7eb',
+                    backgroundColor: 'white',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#374151',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'white')}
+                >
+                  <Mail size={16} />
+                  Message
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Info */}
+          <div
+            style={{
+              paddingTop: '24px',
+              borderTop: '1px solid #e5e7eb',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '16px'
+            }}
+          >
+            <div>
+              <p style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '4px' }}>Email</p>
+              <a
+                href={`mailto:${driver.email}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  color: '#2563eb',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  transition: 'color 0.2s'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#1d4ed8')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#2563eb')}
+              >
+                <Mail size={16} />
+                {driver.email}
+              </a>
+            </div>
+
+            <div>
+              <p style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '4px' }}>Phone</p>
+              <a
+                href={`tel:${driver.phone}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  color: '#2563eb',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  transition: 'color 0.2s'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#1d4ed8')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#2563eb')}
+              >
+                <PhoneIcon size={16} />
+                {driver.phone}
+              </a>
+            </div>
+
+            <div>
+              <p style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '4px' }}>Address</p>
+              <p
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '8px',
+                  fontSize: '14px',
+                  color: '#374151',
+                  margin: 0
+                }}
+              >
+                <MapPin size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+                {driver.address}
+              </p>
+            </div>
+
+            <div>
+              <p style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '4px' }}>Emergency Contact</p>
+              <p style={{ fontSize: '14px', color: '#374151', fontWeight: '500', margin: 0 }}>
+                {driver.emergencyContact.name}
+              </p>
+              <a
+                href={`tel:${driver.emergencyContact.phone}`}
+                style={{
+                  color: '#2563eb',
+                  textDecoration: 'none',
+                  fontSize: '12px',
+                  transition: 'color 0.2s'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#1d4ed8')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#2563eb')}
+              >
+                {driver.emergencyContact.phone}
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Stats */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+          gap: '12px',
+          marginBottom: '24px'
+        }}
+      >
+        {[
+          { label: 'Total Shipments', value: stats.totalShipments, icon: '📦' },
+          { label: 'Total Revenue', value: formatCurrency(stats.totalRevenue), icon: '💰' },
+          { label: 'Avg Rating', value: `${stats.averageRating}★`, icon: '⭐' },
+          { label: 'Expiring Docs', value: stats.expiringDocuments, icon: '⚠️', highlight: stats.expiringDocuments > 0 }
+        ].map((stat, i) => (
+          <div
+            key={i}
+            style={{
+              backgroundColor: stat.highlight ? '#fef3c7' : 'white',
+              border: stat.highlight ? '1px solid #fcd34d' : '1px solid #e5e7eb',
+              borderRadius: '8px',
+              padding: '16px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              textAlign: 'center',
+              transition: 'box-shadow 0.2s'
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)')}
+            onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)')}
+          >
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}>{stat.icon}</div>
+            <p style={{ fontSize: '12px', color: '#6b7280', margin: 0, marginBottom: '4px' }}>{stat.label}</p>
+            <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', margin: 0 }}>{stat.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabs */}
+      <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
+        {/* Tab List */}
+        <div
+          style={{
+            display: 'flex',
+            borderBottom: '1px solid #e5e7eb',
+            backgroundColor: '#f9fafb'
+          }}
+        >
+          {[
+            { id: 'license', label: 'License', icon: '🏆' },
+            { id: 'vehicle', label: 'Vehicle', icon: '🚚' },
+            { id: 'documents', label: 'Documents', icon: '📄' },
+            { id: 'shipments', label: 'Shipments', icon: '📈' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                border: 'none',
+                backgroundColor: activeTab === tab.id ? 'white' : 'transparent',
+                color: activeTab === tab.id ? '#2563eb' : '#6b7280',
+                fontSize: '14px',
+                fontWeight: activeTab === tab.id ? '600' : '500',
+                cursor: 'pointer',
+                borderBottom: activeTab === tab.id ? '2px solid #2563eb' : 'none',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== tab.id) {
+                  e.currentTarget.style.color = '#374151';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== tab.id) {
+                  e.currentTarget.style.color = '#6b7280';
+                }
+              }}
+            >
+              <span>{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        <div style={{ padding: '24px' }}>
+          {/* License Tab */}
+          {activeTab === 'license' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                  <Award size={20} />
+                  Driver License
+                </h2>
+                <span
+                  style={{
+                    backgroundColor: licenseStatusConfig.bgColor,
+                    color: licenseStatusConfig.color,
+                    padding: '4px 12px',
+                    borderRadius: '20px',
+                    fontSize: '13px',
+                    fontWeight: '500'
+                  }}
+                >
+                  {licenseStatusConfig.icon} {licenseStatus}
+                </span>
+              </div>
+
+              {driver.licenses.map((license, i) => (
+                <div
+                  key={i}
+                  style={{
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    marginBottom: '16px'
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                      gap: '16px',
+                      marginBottom: '16px'
+                    }}
+                  >
+                    <div>
+                      <p style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '4px' }}>Type</p>
+                      <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827', margin: 0 }}>{license.type}</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '4px' }}>License Number</p>
+                      <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827', margin: 0 }}>{license.number}</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '4px' }}>Expiry Date</p>
+                      <p style={{ fontSize: '14px', color: '#111827', margin: 0 }}>{formatDate(license.expiryDate)}</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '4px' }}>Status</p>
+                      <span
+                        style={{
+                          backgroundColor: DOCUMENT_STATUS_COLORS[getExpiryStatus(license.expiryDate)].bgColor,
+                          color: DOCUMENT_STATUS_COLORS[getExpiryStatus(license.expiryDate)].color,
+                          padding: '4px 12px',
+                          borderRadius: '20px',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          display: 'inline-block'
+                        }}
+                      >
+                        {getExpiryStatus(license.expiryDate)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {license.restrictions.length > 0 && (
+                    <div>
+                      <p style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '8px' }}>Restrictions</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {license.restrictions.map((r, j) => (
+                          <span
+                            key={j}
+                            style={{
+                              border: '1px solid #e5e7eb',
+                              padding: '4px 12px',
+                              borderRadius: '20px',
+                              fontSize: '12px',
+                              color: '#6b7280'
+                            }}
+                          >
+                            {r}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Vehicle Tab */}
+          {activeTab === 'vehicle' && (
+            <div>
+              <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 0 24px 0' }}>
+                <Truck size={20} />
+                Assigned Vehicle
+              </h2>
+
+              {driver.assignedTruck ? (
+                <div
+                  style={{
+                    backgroundColor: '#eff6ff',
+                    border: '1px solid #bfdbfe',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: '16px'
+                  }}
+                >
+                  <div>
+                    <p style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '4px' }}>Truck Name</p>
+                    <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827', margin: 0 }}>{driver.assignedTruck.name}</p>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '4px' }}>License Plate</p>
+                    <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#111827', margin: 0 }}>{driver.assignedTruck.licensePlate}</p>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '12px' }}>🚚</div>
+                  <p style={{ color: '#6b7280', margin: 0 }}>No vehicle currently assigned</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Documents Tab */}
+          {activeTab === 'documents' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                  <FileText size={20} />
+                  Documents
+                </h2>
+                <button
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    backgroundColor: '#2563eb',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
+                >
+                  <Upload size={16} />
+                  Upload
+                </button>
+              </div>
+
+              {driver.documents.map(doc => (
+                <DocumentCard
+                  key={doc.id}
+                  document={doc}
+                  onDownload={() => alert(`Downloading ${doc.name}...`)}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Shipments Tab */}
+          {activeTab === 'shipments' && (
+            <div>
+              <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 0 24px 0' }}>
+                <TrendingUp size={20} />
+                Recent Shipments
+              </h2>
+
+              {driver.shipments.map(shipment => (
+                <ShipmentRow
+                  key={shipment.id}
+                  shipment={shipment}
+                  onView={(s) => alert(`Viewing shipment: ${s.trackingNumber}`)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <EditModal
+          driver={driver}
+          onClose={() => setShowEditModal(false)}
+          onSave={handleSaveDriver}
+        />
+      )}
+
+      {/* Message Modal */}
+      {showMessageModal && (
+        <MessageModal
+          driver={driver}
+          onClose={() => setShowMessageModal(false)}
+          onSend={handleSendMessage}
+        />
+      )}
     </div>
   );
 };

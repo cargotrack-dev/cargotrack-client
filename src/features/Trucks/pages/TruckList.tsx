@@ -8,9 +8,7 @@ import {
   Truck, 
   Plus, 
   Search, 
-  Filter, 
   MapPin, 
-  AlertCircle,
   TrendingUp
 } from 'lucide-react'
 

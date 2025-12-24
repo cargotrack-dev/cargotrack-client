@@ -22,6 +22,11 @@ const InvoiceDetails = lazy(() => import('../../Invoices/pages/InvoiceDetails'))
 const Analytics = lazy(() => import('../../Analytics/pages/Dashboard'));
 const NotFoundPage = lazy(() => import('../pages/NotFound'));
 const Tracking = lazy(() => import('../../Tracking/pages/LiveTracking'));
+const DriverList = lazy(() => import('../../Drivers/pages/DriversList'));
+const DriverDetails = lazy(() => import('../../Drivers/pages/DriverDetails'));
+const Maintenance = lazy(() => import('../../Maintenance/pages/MaintenanceList'));
+const ClientList = lazy(() => import('../../Clients/pages/ClientDashboard'));
+const ClientDetails = lazy(() => import('../../Clients/pages/ClientDetails'));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -84,21 +89,22 @@ export const AppRoutes = () => {
               <Route path="/dashboard/shipments" element={<ShipmentList />} />
               <Route path="/dashboard/shipments/:id" element={<ShipmentDetails />} />
 
+              <Route path="/dashboard/drivers" element={<DriverList />} />
+              <Route path="/dashboard/drivers/:id" element={<DriverDetails />} />
+
+              <Route path="/dashboard/maintenance" element={<Maintenance />} />
+
+              <Route path="/dashboard/clients" element={<ClientList />} />
+              <Route path="/dashboard/clients/:id" element={<ClientDetails />} />
+
               {/* Other dashboard routes - uncomment as features are added */}
               {/* 
               <Route path="/dashboard/trucks" element={<TruckList />} />
               <Route path="/dashboard/trucks/:id" element={<TruckDetails />} />
               
-              <Route path="/dashboard/drivers" element={<DriverList />} />
-              <Route path="/dashboard/drivers/:id" element={<DriverDetails />} />
-              
-              <Route path="/dashboard/clients" element={<ClientList />} />
-              <Route path="/dashboard/clients/:id" element={<ClientDetails />} />
-              
               <Route path="/dashboard/analytics" element={<DashboardAnalytics />} />
               <Route path="/dashboard/reports" element={<Reports />} />
-              
-              <Route path="/dashboard/maintenance" element={<Maintenance />} />
+            
               <Route path="/dashboard/invoices" element={<DashboardInvoices />} />
               
               <Route path="/dashboard/documents" element={<Documents />} />

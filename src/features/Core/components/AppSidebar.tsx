@@ -1,5 +1,5 @@
 // src/features/Core/components/AppSidebar.tsx
-// ✅ UNIFIED FINAL: Single sidebar for entire app, no duplication!
+// ✅ UPDATED: Correct badge counts for all menu items
 
 import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -41,6 +41,7 @@ interface MenuSection {
  * ✅ Professional inline styles
  * ✅ Consistent across all pages
  * ✅ No duplication, no conflicts
+ * ✅ FIXED: All badge counts corrected!
  */
 const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen = true, onClose }) => {
   const navigate = useNavigate()
@@ -71,16 +72,16 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen = true, onClose }) => {
       items: [
         { href: '/shipments', label: 'Shipments', icon: <Package size={16} />, badge: 5 },
         { href: '/trucks', label: 'Trucks', icon: <Truck size={16} />, badge: 2 },
-        { href: '/drivers', label: 'Drivers', icon: <Users size={16} />, badge: 0 },
-        { href: '/tracking', label: 'Real-Time Tracking', icon: <MapPin size={16} />, badge: 0 }
+        { href: '/drivers', label: 'Drivers', icon: <Users size={16} />, badge: 6 },           // ✅ FIXED: 0 → 6
+        { href: '/tracking', label: 'Real-Time Tracking', icon: <MapPin size={16} />, badge: 6 }  // ✅ FIXED: 0 → 6
       ]
     },
     {
       title: 'MANAGEMENT',
       items: [
-        { href: '/clients', label: 'Clients', icon: <Briefcase size={16} />, badge: 0 },
+        { href: '/clients', label: 'Clients', icon: <Briefcase size={16} />, badge: 8 },     // ✅ FIXED: 0 → 8
         { href: '/invoices', label: 'Invoices', icon: <Package size={16} />, badge: 3 },
-        { href: '/maintenance', label: 'Maintenance', icon: <Truck size={16} />, badge: 0 },
+        { href: '/maintenance', label: 'Maintenance', icon: <Truck size={16} />, badge: 4 }, // ✅ FIXED: 0 → 4
         { href: '/settings', label: 'Settings', icon: <Settings size={16} />, badge: 0 }
       ]
     }
@@ -378,7 +379,7 @@ const MenuSection: React.FC<MenuSectionProps> = ({
             {/* Label */}
             <span style={{ flex: 1 }}>{item.label}</span>
 
-            {/* Badge */}
+            {/* Badge - RED with pulsing animation */}
             {item.badge && item.badge > 0 && (
               <span
                 style={{
@@ -392,7 +393,9 @@ const MenuSection: React.FC<MenuSectionProps> = ({
                   justifyContent: 'center',
                   fontSize: '10px',
                   fontWeight: '700',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)',
+                  animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
                 }}
               >
                 {item.badge}
@@ -422,3 +425,18 @@ const MenuSection: React.FC<MenuSectionProps> = ({
 )
 
 export default AppSidebar
+
+// ============================================================
+// CSS ANIMATION FOR BADGES
+// ============================================================
+// Add this to your global styles or component styles:
+/*
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+*/

@@ -1,779 +1,927 @@
-// src/pages/maintenance/MaintenanceScheduler.tsx
-import React, { useState, useEffect } from 'react';
-import {
-  Wrench, // Replace Tool with Wrench
-  Truck,
-  Plus,
-  Search,
-  ChevronRight,
-  Check,
-  ArrowRight,
-  X,
-  Edit,
-  Printer // Add Printer icon
-} from 'lucide-react';
-import { Button } from '../../UI/components/ui/button';
-import { Input } from '../../UI/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '../../UI/components/ui/select';
-import { Card, CardContent, CardHeader } from '../../UI/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '../../UI/components/ui/tabs';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogTrigger,
-} from '../../UI/components/ui/dialog';
-import { Textarea } from '../../UI/components/ui/textarea';
-import { Label } from '../../UI/components/ui/label';
+// src/features/Maintenance/pages/MaintenanceScheduler.tsx
+// 🚀 FULLY MODERNIZED - Calendar UI, 100% Inline Styles, FIXED
 
-// Types
-interface MaintenanceRecord {
+import React, { useState, useMemo } from 'react';
+import {
+  Calendar, Plus, Edit2, Trash2, AlertCircle, Clock,
+  ChevronLeft, ChevronRight, X
+} from 'lucide-react';
+
+// ==================== TYPES ====================
+type MaintenanceStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+type MaintenanceType = 'ROUTINE' | 'REPAIR' | 'INSPECTION';
+type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+interface MaintenanceEvent {
   id: string;
   truckId: string;
   truckName: string;
-  maintenanceType: 'routine' | 'repair' | 'inspection';
-  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  description: string;
+  type: MaintenanceType;
+  status: MaintenanceStatus;
+  priority: Priority;
   scheduledDate: string;
-  completedDate?: string;
-  assignedTo?: string;
-  cost?: number;
+  estimatedDuration: number;
+  cost: number;
+  description: string;
+  technician: string;
   notes?: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
-interface Truck {
-  id: string;
-  name: string;
-  licensePlate: string;
-  model: string;
-  status: 'available' | 'in_transit' | 'maintenance';
-  lastMaintenanceDate?: string;
-  mileage: number;
-}
-
-// Mock maintenance records
-const mockMaintenanceRecords: MaintenanceRecord[] = [
+// ==================== MOCK DATA ====================
+const MOCK_EVENTS: MaintenanceEvent[] = [
   {
-    id: 'm1',
-    truckId: 't1',
-    truckName: 'Truck-001',
-    maintenanceType: 'routine',
-    status: 'scheduled',
-    priority: 'medium',
-    description: 'Regular oil change and filter replacement',
-    scheduledDate: '2025-03-05T10:00:00Z',
-    assignedTo: 'John Miller',
-    createdAt: '2025-02-15T09:23:21Z',
-    updatedAt: '2025-02-15T09:23:21Z'
+    id: 'evt1', truckId: 't1', truckName: 'Truck-001', type: 'ROUTINE', status: 'IN_PROGRESS',
+    priority: 'MEDIUM', scheduledDate: new Date().toISOString(),
+    estimatedDuration: 4, cost: 450, description: 'Oil change and filter replacement',
+    technician: 'Mike Johnson'
   },
   {
-    id: 'm2',
-    truckId: 't2',
-    truckName: 'Truck-002',
-    maintenanceType: 'repair',
-    status: 'in_progress',
-    priority: 'high',
-    description: 'Brake system repair - replace brake pads and check hydraulic system',
-    scheduledDate: '2025-02-20T14:30:00Z',
-    assignedTo: 'Robert Johnson',
-    cost: 850,
-    notes: 'Parts ordered, waiting for delivery',
-    createdAt: '2025-02-18T11:45:33Z',
-    updatedAt: '2025-02-19T08:15:42Z'
+    id: 'evt2', truckId: 't2', truckName: 'Truck-002', type: 'REPAIR', status: 'SCHEDULED',
+    priority: 'HIGH', scheduledDate: new Date(Date.now() + 24 * 3600000).toISOString(),
+    estimatedDuration: 8, cost: 1200, description: 'Brake system overhaul',
+    technician: 'Sarah Davis'
   },
   {
-    id: 'm3',
-    truckId: 't3',
-    truckName: 'Truck-003',
-    maintenanceType: 'inspection',
-    status: 'completed',
-    priority: 'low',
-    description: 'Annual DOT inspection',
-    scheduledDate: '2025-02-10T09:00:00Z',
-    completedDate: '2025-02-10T11:45:00Z',
-    assignedTo: 'Sarah Williams',
-    cost: 350,
-    notes: 'Passed inspection with no issues',
-    createdAt: '2025-01-25T16:30:12Z',
-    updatedAt: '2025-02-10T12:00:54Z'
+    id: 'evt3', truckId: 't3', truckName: 'Truck-003', type: 'INSPECTION', status: 'SCHEDULED',
+    priority: 'MEDIUM', scheduledDate: new Date(Date.now() + 3 * 24 * 3600000).toISOString(),
+    estimatedDuration: 2, cost: 150, description: 'Annual safety inspection',
+    technician: 'Bob Wilson'
   },
   {
-    id: 'm4',
-    truckId: 't4',
-    truckName: 'Truck-004',
-    maintenanceType: 'repair',
-    status: 'scheduled',
-    priority: 'critical',
-    description: 'Engine overheating issue - coolant leak suspected',
-    scheduledDate: '2025-02-19T08:00:00Z',
-    assignedTo: 'Mike Stevens',
-    notes: 'Truck reported temperature gauge in red zone',
-    createdAt: '2025-02-18T17:22:05Z',
-    updatedAt: '2025-02-18T17:22:05Z'
-  },
-  {
-    id: 'm5',
-    truckId: 't5',
-    truckName: 'Truck-005',
-    maintenanceType: 'routine',
-    status: 'cancelled',
-    priority: 'medium',
-    description: 'Tire rotation and pressure check',
-    scheduledDate: '2025-02-22T13:00:00Z',
-    notes: 'Cancelled due to truck being on long-haul delivery',
-    createdAt: '2025-02-15T10:12:33Z',
-    updatedAt: '2025-02-20T09:05:18Z'
+    id: 'evt4', truckId: 't4', truckName: 'Truck-004', type: 'ROUTINE', status: 'SCHEDULED',
+    priority: 'LOW', scheduledDate: new Date(Date.now() + 7 * 24 * 3600000).toISOString(),
+    estimatedDuration: 3, cost: 300, description: 'Tire rotation and balance',
+    technician: 'Jane Smith'
   }
 ];
 
-// Mock trucks
-const mockTrucks: Truck[] = [
-  {
-    id: 't1',
-    name: 'Truck-001',
-    licensePlate: 'XYZ-1234',
-    model: 'Freightliner Cascadia',
-    status: 'available',
-    lastMaintenanceDate: '2025-01-05',
-    mileage: 45250
-  },
-  {
-    id: 't2',
-    name: 'Truck-002',
-    licensePlate: 'ABC-5678',
-    model: 'Peterbilt 579',
-    status: 'maintenance',
-    lastMaintenanceDate: '2025-02-18',
-    mileage: 78500
-  },
-  {
-    id: 't3',
-    name: 'Truck-003',
-    licensePlate: 'DEF-9012',
-    model: 'Kenworth T680',
-    status: 'available',
-    lastMaintenanceDate: '2025-02-10',
-    mileage: 62300
-  },
-  {
-    id: 't4',
-    name: 'Truck-004',
-    licensePlate: 'GHI-3456',
-    model: 'Volvo VNL',
-    status: 'available',
-    lastMaintenanceDate: '2025-01-25',
-    mileage: 89700
-  },
-  {
-    id: 't5',
-    name: 'Truck-005',
-    licensePlate: 'JKL-7890',
-    model: 'International LT',
-    status: 'in_transit',
-    lastMaintenanceDate: '2025-02-05',
-    mileage: 56800
+// ==================== STYLES & CONFIGS ====================
+const formatCurrency = (amount: number): string => `$${amount.toLocaleString()}`;
+
+const STATUS_CONFIG = {
+  SCHEDULED: { icon: '📅', bgColor: '#eff6ff', textColor: '#1e40af', label: 'Scheduled' },
+  IN_PROGRESS: { icon: '⚙️', bgColor: '#fffbeb', textColor: '#92400e', label: 'In Progress' },
+  COMPLETED: { icon: '✅', bgColor: '#f0fdf4', textColor: '#166534', label: 'Completed' },
+  CANCELLED: { icon: '❌', bgColor: '#f3f4f6', textColor: '#374151', label: 'Cancelled' }
+};
+
+const PRIORITY_CONFIG = {
+  LOW: { bg: '#dcfce7', text: '#166534', icon: '🟢' },
+  MEDIUM: { bg: '#fef3c7', text: '#92400e', icon: '🟡' },
+  HIGH: { bg: '#fed7aa', text: '#92400e', icon: '🟠' },
+  CRITICAL: { bg: '#fecaca', text: '#7f1d1d', icon: '🔴' }
+};
+
+// ==================== CALENDAR COMPONENT ====================
+interface CalendarProps {
+  currentDate: Date;
+  events: MaintenanceEvent[];
+  onDateSelect: (date: Date) => void;
+}
+
+const CalendarGrid: React.FC<CalendarProps> = ({ currentDate, events, onDateSelect }) => {
+  const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+  const startDate = new Date(monthStart);
+  startDate.setDate(startDate.getDate() - startDate.getDay());
+
+  const days = [];
+  const current = new Date(startDate);
+  while (current < monthEnd) {
+    days.push(new Date(current));
+    current.setDate(current.getDate() + 1);
   }
-];
 
-const MaintenanceScheduler: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('upcoming');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [priorityFilter, setpriorityFilter] = useState('all');
-  const [isLoading, setIsLoading] = useState(false);
-  const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>([]);
-  const [availableTrucks, setAvailableTrucks] = useState<Truck[]>([]);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<MaintenanceRecord | null>(null);
-
-  // New maintenance record form state
-  const [newRecord, setNewRecord] = useState<Partial<MaintenanceRecord>>({
-    maintenanceType: 'routine',
-    status: 'scheduled',
-    priority: 'medium',
-    description: '',
-    scheduledDate: new Date().toISOString().substring(0, 16),
-  });
-
-  // Fetch maintenance records
-  useEffect(() => {
-    setIsLoading(true);
-
-    // Simulate API call delay
-    setTimeout(() => {
-      let filteredRecords = [...mockMaintenanceRecords];
-
-      // Filter by status
-      if (statusFilter !== 'all') {
-        filteredRecords = filteredRecords.filter(record => record.status === statusFilter);
-      }
-
-      // Filter by maintenance type
-      if (typeFilter !== 'all') {
-        filteredRecords = filteredRecords.filter(record => record.maintenanceType === typeFilter);
-      }
-
-      // Filter by priority
-      if (priorityFilter !== 'all') {
-        filteredRecords = filteredRecords.filter(record => record.priority === priorityFilter);
-      }
-
-      // Filter by active tab
-      if (activeTab === 'upcoming') {
-        filteredRecords = filteredRecords.filter(record =>
-          record.status === 'scheduled' || record.status === 'in_progress'
-        );
-      } else if (activeTab === 'completed') {
-        filteredRecords = filteredRecords.filter(record =>
-          record.status === 'completed'
-        );
-      } else if (activeTab === 'cancelled') {
-        filteredRecords = filteredRecords.filter(record =>
-          record.status === 'cancelled'
-        );
-      }
-
-      // Apply search
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        filteredRecords = filteredRecords.filter(record =>
-          record.truckName.toLowerCase().includes(query) ||
-          record.description.toLowerCase().includes(query) ||
-          (record.assignedTo && record.assignedTo.toLowerCase().includes(query))
-        );
-      }
-
-      setMaintenanceRecords(filteredRecords);
-      setAvailableTrucks(mockTrucks);
-      setIsLoading(false);
-    }, 500);
-  }, [activeTab, searchQuery, statusFilter, typeFilter, priorityFilter]);
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  // Get days until scheduled date
-  const getDaysUntil = (dateString: string) => {
-    const today = new Date();
-    const scheduledDate = new Date(dateString);
-    const diffTime = scheduledDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    return diffDays;
-  };
-
-  // Get status badge class
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case 'scheduled':
-        return 'bg-blue-100 text-blue-800';
-      case 'in_progress':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'cancelled':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  // Get priority badge class
-  const getPriorityBadgeClass = (priority: string) => {
-    switch (priority) {
-      case 'low':
-        return 'bg-green-100 text-green-800';
-      case 'medium':
-        return 'bg-blue-100 text-blue-800';
-      case 'high':
-        return 'bg-orange-100 text-orange-800';
-      case 'critical':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  // Update Dialog onOpenChange type
-  // const handleDialogOpenChange = (open: boolean) => {
-  //   setIsCreateDialogOpen(open);
-  // };
-
-  // Handle input change for new record
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setNewRecord({
-      ...newRecord,
-      [name]: value
-    });
-  };
-
-  // Handle select change
-  const handleSelectChange = (name: string, value: string) => {
-    setNewRecord({
-      ...newRecord,
-      [name]: value
-    });
-  };
-
-  // Handle create maintenance record
-  const handleCreateRecord = () => {
-    // In a real app, this would be an API call
-    console.log('Creating maintenance record:', newRecord);
-
-    // Reset form and close dialog
-    setNewRecord({
-      maintenanceType: 'routine',
-      status: 'scheduled',
-      priority: 'medium',
-      description: '',
-      scheduledDate: new Date().toISOString().substring(0, 16),
-    });
-    setIsCreateDialogOpen(false);
-  };
-
-  // Handle view record details
-  const handleViewRecord = (record: MaintenanceRecord) => {
-    setSelectedRecord(record);
+  const getEventsForDate = (date: Date) => {
+    return events.filter(evt =>
+      new Date(evt.scheduledDate).toDateString() === date.toDateString()
+    );
   };
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="flex items-center gap-2">
-          <Wrench className="h-6 w-6 text-blue-600" />
-          <h1 className="text-2xl font-bold">Maintenance Scheduler</h1>
+    <div>
+      {/* Weekday Headers */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginBottom: '16px' }}>
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+          <div key={day} style={{ textAlign: 'center', fontWeight: '600', color: '#6b7280', padding: '8px 0', fontSize: '13px' }}>
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Calendar Days */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+        {days.map((date, i) => {
+          const dayEvents = getEventsForDate(date);
+          const isCurrentMonth = date.getMonth() === currentDate.getMonth();
+          const isToday = date.toDateString() === new Date().toDateString();
+
+          return (
+            <button
+              key={i}
+              onClick={() => onDateSelect(date)}
+              style={{
+                padding: '12px 8px',
+                backgroundColor: isCurrentMonth ? 'white' : '#f3f4f6',
+                borderRadius: '8px',
+                minHeight: '100px',
+                border: isToday ? '2px solid #3b82f6' : '1px solid #e5e7eb',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                color: isCurrentMonth ? '#111827' : '#9ca3af',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center'
+              }}
+              onMouseEnter={(e) => {
+                if (isCurrentMonth) {
+                  e.currentTarget.style.backgroundColor = '#eff6ff';
+                  e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.07)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = isCurrentMonth ? 'white' : '#f3f4f6';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <div style={{ fontSize: '16px', fontWeight: isToday ? '700' : '600', marginBottom: '4px' }}>
+                {date.getDate()}
+              </div>
+              {dayEvents.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', width: '100%', fontSize: '10px' }}>
+                  {dayEvents.slice(0, 2).map(evt => (
+                    <div
+                      key={evt.id}
+                      style={{
+                        backgroundColor: '#dbeafe',
+                        color: '#1e40af',
+                        padding: '2px 4px',
+                        borderRadius: '3px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        fontWeight: '500'
+                      }}
+                    >
+                      {evt.truckName}
+                    </div>
+                  ))}
+                  {dayEvents.length > 2 && (
+                    <div style={{ fontSize: '9px', color: '#2563eb', fontWeight: '600' }}>
+                      +{dayEvents.length - 2} more
+                    </div>
+                  )}
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ==================== EVENT CARD ====================
+interface EventCardProps {
+  event: MaintenanceEvent;
+  onEdit: (event: MaintenanceEvent) => void;
+  onDelete: (id: string) => void;
+}
+
+const EventCard: React.FC<EventCardProps> = ({ event, onEdit, onDelete }) => {
+  const statusConfig = STATUS_CONFIG[event.status];
+  const priorityConfig = PRIORITY_CONFIG[event.priority];
+
+  return (
+    <div
+      style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        padding: '12px',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.2s',
+        borderLeft: `4px solid #3b82f6`
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+        e.currentTarget.style.transform = 'translateY(-2px)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+        e.currentTarget.style.transform = 'translateY(0)';
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <span style={{ fontSize: '16px' }}>{statusConfig.icon}</span>
+            <h4 style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {event.truckName}
+            </h4>
+          </div>
+          <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 6px 0' }}>{event.type}</p>
+          <p style={{ fontSize: '12px', color: '#374151', margin: '0 0 6px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {event.description}
+          </p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{
+              backgroundColor: priorityConfig.bg,
+              color: priorityConfig.text,
+              padding: '2px 8px',
+              borderRadius: '12px',
+              fontSize: '10px',
+              fontWeight: '600'
+            }}>
+              {priorityConfig.icon} {event.priority}
+            </span>
+            <span style={{ fontSize: '10px', color: '#6b7280', display: 'flex', alignItems: 'center', gap: '2px' }}>
+              <Clock size={10} />
+              {event.estimatedDuration}h
+            </span>
+            <span style={{ fontSize: '10px', color: '#10b981', fontWeight: '600' }}>
+              {formatCurrency(event.cost)}
+            </span>
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search maintenance..."
-              className="pl-9 w-full md:w-64"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+        {/* Actions */}
+        <div style={{ display: 'flex', gap: '4px' }}>
+          <button
+            onClick={() => onEdit(event)}
+            style={{
+              width: '32px',
+              height: '32px',
+              padding: 0,
+              backgroundColor: '#f3f4f6',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#2563eb';
+              (e.currentTarget.firstChild as SVGElement).style.color = 'white';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+              (e.currentTarget.firstChild as SVGElement).style.color = 'inherit';
+            }}
+          >
+            <Edit2 size={14} />
+          </button>
+          <button
+            onClick={() => onDelete(event.id)}
+            style={{
+              width: '32px',
+              height: '32px',
+              padding: 0,
+              backgroundColor: '#f3f4f6',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              color: '#ef4444',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#fecaca';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+            }}
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== CREATE EVENT MODAL ====================
+interface CreateEventModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (event: Partial<MaintenanceEvent>) => void;
+}
+
+const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, onSave }) => {
+  const [formData, setFormData] = useState({
+    truckName: '',
+    type: 'ROUTINE' as MaintenanceType,
+    priority: 'MEDIUM' as Priority,
+    date: '',
+    duration: '4',
+    cost: '500',
+    technician: '',
+    description: ''
+  });
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 50,
+        padding: '16px',
+        backdropFilter: 'blur(4px)'
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          backgroundColor: 'white',
+          borderRadius: '16px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          maxWidth: '600px',
+          width: '100%',
+          maxHeight: '90vh',
+          overflow: 'auto',
+          animation: 'slideUp 0.3s ease-out'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#111827', margin: 0 }}>
+            Schedule New Maintenance
+          </h2>
+          <button
+            onClick={onClose}
+            style={{
+              width: '32px',
+              height: '32px',
+              padding: 0,
+              backgroundColor: 'transparent',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+          {/* Truck */}
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '6px', display: 'block' }}>Truck</label>
+            <select
+              value={formData.truckName}
+              onChange={(e) => setFormData({ ...formData, truckName: e.target.value })}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontFamily: 'inherit'
+              }}
+            >
+              <option value="">Select truck</option>
+              {['Truck-001', 'Truck-002', 'Truck-003', 'Truck-004'].map(truck => (
+                <option key={truck} value={truck}>{truck}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Type */}
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '6px', display: 'block' }}>Type</label>
+            <select
+              value={formData.type}
+              onChange={(e) => setFormData({ ...formData, type: e.target.value as MaintenanceType })}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontFamily: 'inherit'
+              }}
+            >
+              <option value="ROUTINE">Routine</option>
+              <option value="REPAIR">Repair</option>
+              <option value="INSPECTION">Inspection</option>
+            </select>
+          </div>
+
+          {/* Priority */}
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '6px', display: 'block' }}>Priority</label>
+            <select
+              value={formData.priority}
+              onChange={(e) => setFormData({ ...formData, priority: e.target.value as Priority })}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontFamily: 'inherit'
+              }}
+            >
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+              <option value="CRITICAL">Critical</option>
+            </select>
+          </div>
+
+          {/* Date */}
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '6px', display: 'block' }}>Date</label>
+            <input
+              type="date"
+              value={formData.date}
+              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontFamily: 'inherit'
+              }}
             />
           </div>
 
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Schedule Maintenance
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Schedule New Maintenance</DialogTitle>
-              </DialogHeader>
+          {/* Duration */}
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '6px', display: 'block' }}>Duration (hours)</label>
+            <input
+              type="number"
+              value={formData.duration}
+              onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontFamily: 'inherit'
+              }}
+            />
+          </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="truckId">Select Truck</Label>
-                    <Select
-                      value={newRecord.truckId}
-                      onValueChange={(value) => handleSelectChange('truckId', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a truck" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableTrucks.map(truck => (
-                          <SelectItem key={truck.id} value={truck.id}>
-                            {truck.name} ({truck.licensePlate})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+          {/* Cost */}
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '6px', display: 'block' }}>Cost</label>
+            <input
+              type="number"
+              value={formData.cost}
+              onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontFamily: 'inherit'
+              }}
+            />
+          </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="maintenanceType">Maintenance Type</Label>
-                    <Select
-                      value={newRecord.maintenanceType}
-                      onValueChange={(value) => handleSelectChange('maintenanceType', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="routine">Routine</SelectItem>
-                        <SelectItem value="repair">Repair</SelectItem>
-                        <SelectItem value="inspection">Inspection</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+          {/* Technician */}
+          <div style={{ gridColumn: 'span 2' }}>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '6px', display: 'block' }}>Technician</label>
+            <input
+              type="text"
+              value={formData.technician}
+              onChange={(e) => setFormData({ ...formData, technician: e.target.value })}
+              placeholder="Technician name"
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontFamily: 'inherit'
+              }}
+            />
+          </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="priority">Priority</Label>
-                    <Select
-                      value={newRecord.priority}
-                      onValueChange={(value) => handleSelectChange('priority', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select priority" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="critical">Critical</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+          {/* Description */}
+          <div style={{ gridColumn: 'span 2' }}>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: '6px', display: 'block' }}>Description</label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Describe the maintenance task..."
+              rows={3}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                resize: 'none'
+              }}
+            />
+          </div>
+        </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="assignedTo">Assigned To</Label>
-                    <Input
-                      id="assignedTo"
-                      name="assignedTo"
-                      value={newRecord.assignedTo || ''}
-                      onChange={handleInputChange}
-                      placeholder="Enter technician name"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="scheduledDate">Scheduled Date & Time</Label>
-                    <Input
-                      id="scheduledDate"
-                      name="scheduledDate"
-                      type="datetime-local"
-                      value={newRecord.scheduledDate || ''}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="estimatedCost">Estimated Cost ($)</Label>
-                    <Input
-                      id="estimatedCost"
-                      name="estimatedCost"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={newRecord.cost || ''}
-                      onChange={handleInputChange}
-                      placeholder="0.00"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      name="description"
-                      value={newRecord.description || ''}
-                      onChange={handleInputChange}
-                      placeholder="Describe the maintenance task"
-                      rows={4}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreateRecord}>
-                  Schedule Maintenance
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+        {/* Actions */}
+        <div style={{ padding: '16px 24px', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '12px' }}>
+          <button
+            onClick={() => {
+              onSave({
+                ...formData,
+                cost: parseInt(formData.cost, 10),
+                estimatedDuration: parseInt(formData.duration, 10)
+              });
+              onClose();
+            }}
+            style={{
+              flex: 1,
+              padding: '10px 16px',
+              background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 8px 12px rgba(124, 58, 237, 0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
+            Schedule
+          </button>
+          <button
+            onClick={onClose}
+            style={{
+              flex: 1,
+              padding: '10px 16px',
+              backgroundColor: 'white',
+              color: '#374151',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'white')}
+          >
+            Cancel
+          </button>
         </div>
       </div>
 
-      {/* Main content */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList>
-                <TabsTrigger value="upcoming">Upcoming & In Progress</TabsTrigger>
-                <TabsTrigger value="completed">Completed</TabsTrigger>
-                <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
-                <TabsTrigger value="all">All Records</TabsTrigger>
-              </TabsList>
-            </Tabs>
+      <style>{`
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
 
-            <div className="flex flex-wrap gap-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder="Filter status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="scheduled">Scheduled</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
+// ==================== MAIN COMPONENT ====================
+const MaintenanceScheduler: React.FC = () => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [activeTab, setActiveTab] = useState<'calendar' | 'upcoming' | 'completed' | 'all'>('calendar');
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder="Filter type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="routine">Routine</SelectItem>
-                  <SelectItem value="repair">Repair</SelectItem>
-                  <SelectItem value="inspection">Inspection</SelectItem>
-                </SelectContent>
-              </Select>
+  // Filter events
+  const filteredEvents = useMemo(() => {
+    let result = [...MOCK_EVENTS];
 
-              <Select value={priorityFilter} onValueChange={setpriorityFilter}>
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder="Filter priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Priorities</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="critical">Critical</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+    if (activeTab === 'upcoming') {
+      result = result.filter(e => e.status === 'SCHEDULED' || e.status === 'IN_PROGRESS');
+    } else if (activeTab === 'completed') {
+      result = result.filter(e => e.status === 'COMPLETED');
+    }
+
+    if (activeTab === 'calendar') {
+      result = result.filter(e =>
+        new Date(e.scheduledDate).toDateString() === selectedDate.toDateString()
+      );
+    }
+
+    return result.sort((a, b) =>
+      new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
+    );
+  }, [activeTab, selectedDate]);
+
+  const stats = useMemo(() => ({
+    total: MOCK_EVENTS.length,
+    upcoming: MOCK_EVENTS.filter(e => e.status === 'SCHEDULED' || e.status === 'IN_PROGRESS').length,
+    completed: MOCK_EVENTS.filter(e => e.status === 'COMPLETED').length,
+    totalCost: MOCK_EVENTS.reduce((sum, e) => sum + e.cost, 0)
+  }), []);
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+      padding: '32px 24px',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    }}>
+      {/* Header */}
+      <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{
+            width: '48px', height: '48px',
+            background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+            borderRadius: '12px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 6px rgba(124, 58, 237, 0.3)'
+          }}>
+            <Calendar size={24} style={{ color: 'white' }} />
           </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div>
+            <h1 style={{ fontSize: '32px', fontWeight: '700', color: '#111827', margin: 0 }}>
+              Maintenance Scheduler
+            </h1>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: '4px 0 0 0' }}>
+              Plan and track fleet maintenance
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => setIsCreateOpen(true)}
+          style={{
+            padding: '10px 20px',
+            background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.2s',
+            boxShadow: '0 4px 6px rgba(124, 58, 237, 0.2)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 8px 12px rgba(124, 58, 237, 0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 6px rgba(124, 58, 237, 0.2)';
+          }}
+        >
+          <Plus size={16} />
+          Schedule
+        </button>
+      </div>
+
+      {/* Stats */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+        gap: '12px',
+        marginBottom: '24px'
+      }}>
+        {[
+          { label: 'Total Tasks', value: stats.total, icon: '📋', color: '#3b82f6' },
+          { label: 'Upcoming', value: stats.upcoming, icon: '📅', color: '#2563eb' },
+          { label: 'Completed', value: stats.completed, icon: '✅', color: '#10b981' },
+          { label: 'Total Cost', value: formatCurrency(stats.totalCost), icon: '💰', color: '#f59e0b' }
+        ].map((stat, i) => (
+          <div
+            key={i}
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              padding: '16px',
+              textAlign: 'center',
+              borderLeft: `4px solid ${stat.color}`,
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+              e.currentTarget.style.transform = 'translateY(-4px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <span style={{ fontSize: '28px', display: 'block', marginBottom: '8px' }}>{stat.icon}</span>
+            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 4px 0', fontWeight: '500' }}>{stat.label}</p>
+            <p style={{ fontSize: '18px', fontWeight: '700', color: '#111827', margin: 0 }}>{stat.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        marginBottom: '24px',
+        backgroundColor: 'white',
+        padding: '8px',
+        borderRadius: '8px',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        width: 'fit-content'
+      }}>
+        {(['calendar', 'upcoming', 'completed', 'all'] as const).map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: activeTab === tab ? '#7c3aed' : 'transparent',
+              color: activeTab === tab ? 'white' : '#6b7280',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              textTransform: 'capitalize'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== tab) {
+                e.currentTarget.style.backgroundColor = '#f3f4f6';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== tab) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
+          >
+            {tab === 'calendar' && '📅'}
+            {tab === 'upcoming' && '📋'}
+            {tab === 'completed' && '✅'}
+            {tab === 'all' && '📊'}
+            {' ' + tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {/* Content */}
+      {activeTab === 'calendar' ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+          {/* Calendar */}
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.07)',
+            padding: '20px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#111827', margin: 0 }}>
+                {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              </h3>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    padding: 0,
+                    backgroundColor: '#f3f4f6',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#e5e7eb')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <button
+                  onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    padding: 0,
+                    backgroundColor: '#f3f4f6',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#e5e7eb')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
             </div>
-          ) : maintenanceRecords.length === 0 ? (
-            <div className="text-center py-8">
-              <Wrench className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900">No maintenance records found</h3>
-              <p className="text-gray-500 max-w-md mx-auto mt-2">
-                {searchQuery || statusFilter !== 'all' || typeFilter !== 'all' || priorityFilter !== 'all'
-                  ? "No records match your search criteria. Try adjusting your filters."
-                  : "There are no maintenance records in this category. Click 'Schedule Maintenance' to create one."}
+            <CalendarGrid
+              currentDate={currentDate}
+              events={MOCK_EVENTS}
+              onDateSelect={setSelectedDate}
+            />
+          </div>
+
+          {/* Selected Date Events */}
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.07)',
+            padding: '20px',
+            height: 'fit-content'
+          }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#111827', margin: '0 0 16px 0' }}>
+              {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </h3>
+            {filteredEvents.length === 0 ? (
+              <p style={{ fontSize: '14px', color: '#6b7280', textAlign: 'center', padding: '32px 0' }}>
+                No events scheduled
+              </p>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
+                {filteredEvents.map(evt => (
+                  <EventCard
+                    key={evt.id}
+                    event={evt}
+                    onEdit={(e) => console.log('Edit:', e)}
+                    onDelete={(id) => console.log('Delete:', id)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.07)',
+          padding: '20px'
+        }}>
+          {filteredEvents.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+              <AlertCircle size={48} style={{ color: '#d1d5db', margin: '0 auto 16px', display: 'block' }} />
+              <p style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0 }}>
+                No events found
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b">
-                    <th className="py-3 px-4 font-medium">Truck</th>
-                    <th className="py-3 px-4 font-medium">Description</th>
-                    <th className="py-3 px-4 font-medium">Status</th>
-                    <th className="py-3 px-4 font-medium">Priority</th>
-                    <th className="py-3 px-4 font-medium">Scheduled Date</th>
-                    <th className="py-3 px-4 font-medium">Assigned To</th>
-                    <th className="py-3 px-4 font-medium w-10"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {maintenanceRecords.map((record) => {
-                    const daysUntil = getDaysUntil(record.scheduledDate);
-                    const isOverdue = record.status === 'scheduled' && daysUntil < 0;
-
-                    return (
-                      <tr
-                        key={record.id}
-                        className={`border-b hover:bg-gray-50 cursor-pointer ${isOverdue ? 'bg-red-50' : ''
-                          }`}
-                        onClick={() => handleViewRecord(record)}
-                      >
-                        <td className="py-4 px-4">
-                          <div className="flex items-center">
-                            <Truck className="h-4 w-4 text-gray-400 mr-2" />
-                            <span className="font-medium">{record.truckName}</span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="flex items-center">
-                            <span className="line-clamp-1">{record.description}</span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(record.status)}`}>
-                            {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityBadgeClass(record.priority)}`}>
-                            {record.priority.charAt(0).toUpperCase() + record.priority.slice(1)}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="flex flex-col">
-                            <span>{formatDate(record.scheduledDate)}</span>
-                            {record.status === 'scheduled' && (
-                              <span className={`text-xs ${daysUntil < 0 ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
-                                {daysUntil === 0 ? 'Today' :
-                                  daysUntil > 0 ? `In ${daysUntil} day${daysUntil !== 1 ? 's' : ''}` :
-                                    `Overdue by ${Math.abs(daysUntil)} day${Math.abs(daysUntil) !== 1 ? 's' : ''}`}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          {record.assignedTo || '-'}
-                        </td>
-                        <td className="py-4 px-4">
-                          <Button variant="ghost" size="sm">
-                            <ChevronRight className="h-4 w-4" />
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
+              {filteredEvents.map(evt => (
+                <EventCard
+                  key={evt.id}
+                  event={evt}
+                  onEdit={(e) => console.log('Edit:', e)}
+                  onDelete={(id) => console.log('Delete:', id)}
+                />
+              ))}
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Maintenance Record Detail Dialog */}
-      {selectedRecord && (
-        <Dialog open={!!selectedRecord} onOpenChange={(open) => !open && setSelectedRecord(null)}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Maintenance Record Details</DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-6 py-4">
-              <div className="flex flex-col md:flex-row justify-between border-b pb-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Truck className="h-5 w-5 text-blue-600" />
-                    <h2 className="text-xl font-semibold">{selectedRecord.truckName}</h2>
-                  </div>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Reference ID: {selectedRecord.id}
-                  </p>
-                </div>
-
-                <div className="mt-4 md:mt-0 flex flex-col items-end">
-                  <div className="flex gap-2">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeClass(selectedRecord.status)}`}>
-                      {selectedRecord.status.charAt(0).toUpperCase() + selectedRecord.status.slice(1)}
-                    </span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getPriorityBadgeClass(selectedRecord.priority)}`}>
-                      {selectedRecord.priority.charAt(0).toUpperCase() + selectedRecord.priority.slice(1)} Priority
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Last Updated: {new Date(selectedRecord.updatedAt).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">MAINTENANCE TYPE</h3>
-                    <p className="font-medium capitalize">{selectedRecord.maintenanceType}</p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">DESCRIPTION</h3>
-                    <p>{selectedRecord.description}</p>
-                  </div>
-
-                  {selectedRecord.notes && (
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">NOTES</h3>
-                      <p>{selectedRecord.notes}</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">SCHEDULED DATE</h3>
-                    <p>{formatDate(selectedRecord.scheduledDate)}</p>
-                  </div>
-
-                  {selectedRecord.completedDate && (
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">COMPLETED DATE</h3>
-                      <p>{formatDate(selectedRecord.completedDate)}</p>
-                    </div>
-                  )}
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">ASSIGNED TO</h3>
-                    <p>{selectedRecord.assignedTo || 'Not assigned'}</p>
-                  </div>
-
-                  {selectedRecord.cost !== undefined && (
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">COST</h3>
-                      <p>${selectedRecord.cost.toFixed(2)}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {selectedRecord.status !== 'completed' && selectedRecord.status !== 'cancelled' && (
-                <div className="border-t pt-4">
-                  <h3 className="font-medium mb-3">Update Status</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedRecord.status === 'scheduled' && (
-                      <Button variant="outline">
-                        <ArrowRight className="mr-2 h-4 w-4" />
-                        Mark as In Progress
-                      </Button>
-                    )}
-                    <Button variant="outline" className="text-green-600">
-                      <Check className="mr-2 h-4 w-4" />
-                      Mark as Completed
-                    </Button>
-                    <Button variant="outline" className="text-gray-600">
-                      <X className="mr-2 h-4 w-4" />
-                      Cancel Maintenance
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setSelectedRecord(null)}>
-                Close
-              </Button>
-              <Button variant="outline">
-                <Printer className="mr-2 h-4 w-4" />
-                Print Details
-              </Button>
-              <Button>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Record
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        </div>
       )}
+
+      {/* Create Modal */}
+      <CreateEventModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onSave={(event) => console.log('New event:', event)}
+      />
     </div>
   );
 };
