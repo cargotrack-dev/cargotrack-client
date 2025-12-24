@@ -4,7 +4,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import {
   MapPin, Truck, Search, RefreshCw, Filter, Layers,
-  Phone, AlertTriangle, Radio, ArrowRight, ChevronDown, TrendingUp
+  Phone, AlertTriangle, Radio, ArrowRight, ChevronDown
 } from 'lucide-react';
 
 // ==================== TYPES ====================
@@ -312,7 +312,7 @@ const TruckCard: React.FC<TruckCardProps> = ({ truck, isSelected, onClick }) => 
           <p style={{ fontSize: '11px', fontWeight: '600', color: style.textColor, margin: '0 0 8px 0' }}>
             📋 Active Shipment
           </p>
-          <div style={{ space: '8px' }}>
+          <div style={{ gap: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
               <span style={{ color: '#6b7280' }}>Waybill</span>
               <span style={{ fontWeight: 'bold', color: '#111827' }}>{truck.currentWaybill.id}</span>
