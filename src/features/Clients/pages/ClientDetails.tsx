@@ -2,7 +2,7 @@
 // 🎨 MODERN UI/UX - All Inline Styles, Zero Tailwind
 
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Edit2, Plus, Package, FileText, Bell, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Edit2, Plus, Package, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // ==================== TYPES ====================
