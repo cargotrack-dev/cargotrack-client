@@ -1,11 +1,12 @@
 // src/App.tsx
-// ✅ OPTIMIZED - Removed redundant AuthProvider (already in main.tsx)
+// ✅ FINAL FIXED - MaintenanceProvider wraps elements, NOT routes
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './features/Auth/contexts/AuthProvider';
 import { ToastProvider } from './features/UI/components/ui/toast/ToastProvider';
 import { useThemeInit } from './features/Core/hooks/useTheme.ts';
+import { MaintenanceProvider } from './features/Maintenance/contexts/provider'; // ✅ Added
 
 // ✅ Public pages
 import LandingPage from './pages/LandingPage.tsx';
@@ -23,6 +24,8 @@ import Dashboard from './features/Dashboard/pages/Dashboard.tsx';
 import ShipmentList from './features/Shipments/pages/ShipmentListPage.tsx';
 import ShipmentDetails from './features/Shipments/pages/ShipmentDetailsPage.tsx';
 import TruckList from './features/Trucks/pages/TruckList.tsx';
+import TruckNew from './features/Trucks/pages/TruckNew.tsx';
+import TruckEdit from './features/Trucks/pages/TruckEdit.tsx';
 import TruckDetails from './features/Trucks/pages/TruckDetails.tsx';
 import CargoList from './features/Cargo/pages/CargoList.tsx';
 import InvoiceList from './features/Invoices/pages/InvoiceList.tsx';
@@ -36,9 +39,17 @@ import DriverDetails from './features/Drivers/pages/DriverDetails.tsx';
 import Analytics from './features/Analytics/pages/Dashboard.tsx';
 import Settings from './features/Settings/pages/Settings.tsx';
 import UserManagement from './features/Admin/pages/UserManagement.tsx';
-import Maintenance from './features/Maintenance/pages/MaintenanceList.tsx';
-import ClientList from './features/Clients/pages/ClientDashboard.tsx';
+
+// ✅ Maintenance routes
+import MaintenanceList from './features/Maintenance/pages/MaintenanceList.tsx';
+import MaintenanceScheduleForm from './features/Maintenance/components/MaintenanceScheduleForm.tsx'; // ✅ components folder
+import MaintenanceScheduler from './features/Maintenance/pages/MaintenanceScheduler.tsx';
+
+// ✅ Clients routes
+import ClientDashboard from './features/Clients/pages/ClientDashboard.tsx';
 import ClientDetails from './features/Clients/pages/ClientDetails.tsx';
+import ClientNew from './features/Clients/pages/ClientNew.tsx';
+import ClientEdit from './features/Clients/pages/ClientEdit.tsx';
 
 /**
  * ProtectedRoute Component
@@ -78,25 +89,18 @@ function App() {
         <Routes>
 
           {/* ════════════════════════════════════════════════════════════════ */}
-          {/* ✅ PUBLIC ROUTES - No authentication required, always accessible */}
+          {/* ✅ PUBLIC ROUTES - No authentication required */}
           {/* ════════════════════════════════════════════════════════════════ */}
-          
-          {/* Landing page - Main entry point */}
+
           <Route path="/" element={<LandingPage />} />
-          
-          {/* Registration page */}
           <Route path="/register" element={<RegisterPage />} />
-          
-          {/* Login page */}
           <Route path="/login" element={<Login />} />
-          
-          {/* Unauthorized page */}
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
           {/* ════════════════════════════════════════════════════════════════ */}
-          {/* ✅ PROTECTED ROUTES - All wrapped with ProtectedRoute + AppLayout */}
+          {/* ✅ PROTECTED ROUTES - Wrapped with ProtectedRoute + AppLayout */}
           {/* ════════════════════════════════════════════════════════════════ */}
-          
+
           <Route
             element={
               <ProtectedRoute>
@@ -111,8 +115,12 @@ function App() {
             <Route path="/shipments" element={<ShipmentList />} />
             <Route path="/shipments/:id" element={<ShipmentDetails />} />
 
-            {/* Trucks */}
+            {/* ════════════════════════════════════════════════════════════════ */}
+            {/* TRUCKS - Full CRUD with maintenance integration */}
+            {/* ════════════════════════════════════════════════════════════════ */}
             <Route path="/trucks" element={<TruckList />} />
+            <Route path="/trucks/new" element={<TruckNew />} />
+            <Route path="/trucks/edit/:id" element={<TruckEdit />} />
             <Route path="/trucks/:id" element={<TruckDetails />} />
 
             {/* Cargo */}
@@ -137,11 +145,42 @@ function App() {
             {/* Analytics */}
             <Route path="/analytics" element={<Analytics />} />
 
-            <Route path="/clients" element={<ClientList />} />
+            {/* ════════════════════════════════════════════════════════════════ */}
+            {/* CLIENTS - Full CRUD */}
+            {/* ════════════════════════════════════════════════════════════════ */}
+            <Route path="/clients" element={<ClientDashboard />} />
+            <Route path="/clients/new" element={<ClientNew />} />
+            <Route path="/clients/edit/:id" element={<ClientEdit />} />
             <Route path="/clients/:id" element={<ClientDetails />} />
 
-             {/* Maintenance */}
-            <Route path="/maintenance" element={<Maintenance />} />
+            {/* ════════════════════════════════════════════════════════════════ */}
+            {/* MAINTENANCE - Each route wrapped with MaintenanceProvider */}
+            {/* ✅ FIXED: No nested Routes, just wrapped elements */}
+            {/* ════════════════════════════════════════════════════════════════ */}
+            <Route
+              path="/maintenance"
+              element={
+                <MaintenanceProvider>
+                  <MaintenanceList />
+                </MaintenanceProvider>
+              }
+            />
+            <Route
+              path="/maintenance/new"
+              element={
+                <MaintenanceProvider>
+                  <MaintenanceScheduleForm />
+                </MaintenanceProvider>
+              }
+            />
+            <Route
+              path="/maintenance/dashboard"
+              element={
+                <MaintenanceProvider>
+                  <MaintenanceScheduler />
+                </MaintenanceProvider>
+              }
+            />
 
             {/* Settings */}
             <Route path="/settings" element={<Settings />} />
@@ -161,7 +200,7 @@ function App() {
           {/* ════════════════════════════════════════════════════════════════ */}
           {/* ✅ FALLBACK - 404 Not Found */}
           {/* ════════════════════════════════════════════════════════════════ */}
-          
+
           <Route path="/404" element={<div className="p-8">Page not found</div>} />
           <Route path="*" element={<Navigate to="/404" replace />} />
 
@@ -172,36 +211,33 @@ function App() {
 }
 
 /**
- * 🎯 Route Structure:
+ * ✨ ROUTE STRUCTURE - FINAL & WORKING:
  * 
- * PUBLIC ROUTES (Always accessible):
- * /                    ← Landing page (new users start here)
- * /register            ← Registration form
- * /login               ← Login form
- * /unauthorized        ← Unauthorized access
+ * PUBLIC: / /register /login /unauthorized
  * 
- * PROTECTED ROUTES (Require authentication):
- * /dashboard           ← Main dashboard
- * /shipments           ← Shipment management
- * /trucks              ← Vehicle management
- * /cargo               ← Cargo tracking
- * /invoices            ← Invoice management
- * /tasks               ← Task management
- * /tracking            ← Live tracking
- * /analytics           ← Analytics dashboard
- * /settings            ← User settings
- * /admin               ← Admin panel (requires ADMIN role)
+ * PROTECTED (inside ProtectedRoute + AppLayout):
+ * /dashboard
+ * /shipments /shipments/:id
+ * /trucks /trucks/new /trucks/edit/:id /trucks/:id
+ * /cargo
+ * /invoices /invoices/new /invoices/:id
+ * /tasks /tasks/:id
+ * /tracking
+ * /drivers /drivers/:id
+ * /analytics
+ * /clients /clients/new /clients/edit/:id /clients/:id
+ * /maintenance (with provider) → MaintenanceList
+ * /maintenance/new (with provider) → MaintenanceScheduleForm
+ * /maintenance/dashboard (with provider) → MaintenanceScheduler
+ * /settings
+ * /admin
  * 
- * 
- * ✨ KEY OPTIMIZATIONS:
- * ✅ AuthProvider removed (moved to main.tsx for cleaner structure)
- * ✅ Only ToastProvider in App.tsx (keeps concerns separate)
- * ✅ No redirect on landing page (/)
- * ✅ Landing page accessible whether authenticated or not
- * ✅ Clean public/protected route separation
- * ✅ Standard nested routing pattern
- * ✅ ProtectedRoute with role-based access control
- * ✅ AppLayout wraps all protected routes
+ * ✅ KEY FIXES:
+ * ✅ Import path: components folder (not pages)
+ * ✅ MaintenanceProvider wraps elements (not routes)
+ * ✅ No nested Routes breaking routing
+ * ✅ Simple, clean structure
+ * ✅ Routes properly matched by React Router
  */
 
 export default App;

@@ -1,9 +1,9 @@
 // src/features/Trucks/pages/TruckList.tsx
 // ✨ MODERN TRUCK MANAGEMENT - INVESTOR-READY UI/UX
-// Enterprise-grade fleet management with stunning visuals
+// Enterprise-grade fleet management with localStorage support
 
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { 
   Truck, 
   Plus, 
@@ -15,6 +15,7 @@ import {
 interface TruckData {
   id: string
   plateNumber: string
+  licensePlate?: string
   model: string
   status: 'Available' | 'In Transit' | 'Maintenance'
   year: number
@@ -23,15 +24,12 @@ interface TruckData {
   fuelLevel: number
   fuelCapacity: number
   driver?: string
+  driverName?: string
   location?: string
 }
 
-const TruckList: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'All' | 'Available' | 'In Transit' | 'Maintenance'>('All')
-
-  // Mock truck data
-  const trucks: TruckData[] = [
+// Mock truck data - outside component to avoid dependency issues
+const MOCK_TRUCKS: TruckData[] = [
     {
       id: '1',
       plateNumber: 'ABC-1234',
@@ -86,27 +84,62 @@ const TruckList: React.FC = () => {
     }
   ]
 
-  // Filter trucks
-  const filteredTrucks = trucks.filter(truck => {
-    const matchesSearch = 
-      truck.plateNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      truck.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      truck.driver?.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    const matchesStatus = statusFilter === 'All' || truck.status === statusFilter
-    
-    return matchesSearch && matchesStatus
-  })
+const TruckList: React.FC = () => {
+  const navigate = useNavigate()
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'All' | 'Available' | 'In Transit' | 'Maintenance'>('All')
+
+  // Get all trucks - Mock + localStorage combined
+  const getAllTrucks = useMemo(() => {
+    let allTrucks: TruckData[] = [...MOCK_TRUCKS]
+
+    // Read from localStorage
+    const localStorageTrucksJSON = localStorage.getItem('cargotrack_trucks')
+    if (localStorageTrucksJSON) {
+      try {
+        const localStorageTrucks = JSON.parse(localStorageTrucksJSON)
+        const newTrucks = Object.values(localStorageTrucks) as TruckData[]
+        
+        // Avoid duplicates
+        const existingIds = new Set(allTrucks.map(t => t.id))
+        const uniqueNewTrucks = newTrucks.filter(t => !existingIds.has(t.id))
+        
+        // Combine
+        allTrucks = [...allTrucks, ...uniqueNewTrucks]
+        
+        console.log('✅ Loaded trucks from localStorage:', uniqueNewTrucks.length)
+      } catch (error) {
+        console.error('Error reading trucks from localStorage:', error)
+      }
+    }
+
+    return allTrucks
+  }, [])
+
+  // Filter trucks by search and status
+  const filteredTrucks = useMemo(() => {
+    return getAllTrucks.filter(truck => {
+      const matchesSearch = 
+        (truck.plateNumber || truck.licensePlate || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        truck.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (truck.driver || truck.driverName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (truck.location || '').toLowerCase().includes(searchTerm.toLowerCase())
+      
+      const matchesStatus = statusFilter === 'All' || truck.status === statusFilter
+      
+      return matchesSearch && matchesStatus
+    })
+  }, [getAllTrucks, searchTerm, statusFilter])
 
   // Calculate fleet statistics
-  const fleetStats = {
-    total: trucks.length,
-    available: trucks.filter(t => t.status === 'Available').length,
-    inTransit: trucks.filter(t => t.status === 'In Transit').length,
-    maintenance: trucks.filter(t => t.status === 'Maintenance').length,
-    avgFuel: Math.round(trucks.reduce((sum, t) => sum + (t.fuelLevel / t.fuelCapacity * 100), 0) / trucks.length),
-    totalDistance: trucks.reduce((sum, t) => sum + t.odometerReading, 0)
-  }
+  const fleetStats = useMemo(() => ({
+    total: getAllTrucks.length,
+    available: getAllTrucks.filter(t => t.status === 'Available').length,
+    inTransit: getAllTrucks.filter(t => t.status === 'In Transit').length,
+    maintenance: getAllTrucks.filter(t => t.status === 'Maintenance').length,
+    avgFuel: Math.round(getAllTrucks.reduce((sum, t) => sum + (t.fuelLevel / t.fuelCapacity * 100), 0) / getAllTrucks.length),
+    totalDistance: getAllTrucks.reduce((sum, t) => sum + t.odometerReading, 0)
+  }), [getAllTrucks])
 
   // Status color and icon mapping
   const getStatusStyle = (status: string) => {
@@ -149,6 +182,7 @@ const TruckList: React.FC = () => {
             </p>
           </div>
           <button
+            onClick={() => navigate('/trucks/new')}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -189,7 +223,7 @@ const TruckList: React.FC = () => {
                 {fleetStats.total}
               </p>
               <p style={{ fontSize: '14px', color: '#10b981', margin: '0', fontWeight: '500' }}>
-                ↑ 2 this month
+                ✓ {fleetStats.available} ready
               </p>
             </div>
           </div>
@@ -283,7 +317,7 @@ const TruckList: React.FC = () => {
         {/* Status Filter */}
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as any)}
+          onChange={(e) => setStatusFilter(e.target.value as 'All' | 'Available' | 'In Transit' | 'Maintenance')}
           style={{
             padding: '10px 16px',
             border: '1px solid #e5e7eb',
@@ -310,6 +344,8 @@ const TruckList: React.FC = () => {
         {filteredTrucks.map((truck) => {
           const statusStyle = getStatusStyle(truck.status)
           const fuelPercentage = Math.round((truck.fuelLevel / truck.fuelCapacity) * 100)
+          const plateNumber = truck.plateNumber || truck.licensePlate || `Truck-${truck.id}`
+          const driverName = truck.driver || truck.driverName || 'Unassigned'
           
           return (
             <div
@@ -341,7 +377,7 @@ const TruckList: React.FC = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
                   <div>
                     <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1f2937', margin: '0' }}>
-                      {truck.plateNumber}
+                      {plateNumber}
                     </h3>
                     <p style={{ fontSize: '13px', color: '#6b7280', margin: '4px 0 0 0' }}>
                       {truck.model} • {truck.year}
@@ -364,11 +400,9 @@ const TruckList: React.FC = () => {
               {/* Card Body */}
               <div style={{ padding: '16px' }}>
                 {/* Driver & Location */}
-                {truck.driver && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', fontSize: '13px' }}>
-                    <span style={{ color: '#6b7280' }}>👤 {truck.driver}</span>
-                  </div>
-                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', fontSize: '13px' }}>
+                  <span style={{ color: '#6b7280' }}>👤 {driverName}</span>
+                </div>
                 
                 {truck.location && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', fontSize: '13px', color: '#6b7280' }}>
@@ -416,8 +450,8 @@ const TruckList: React.FC = () => {
 
                 {/* Actions */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '16px' }}>
-                  <Link
-                    to={`/trucks/${truck.id}`}
+                  <button
+                    onClick={() => navigate(`/trucks/${truck.id}`)}
                     style={{
                       padding: '8px 12px',
                       backgroundColor: '#2563eb',
@@ -435,8 +469,9 @@ const TruckList: React.FC = () => {
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
                   >
                     View Details
-                  </Link>
+                  </button>
                   <button
+                    onClick={() => navigate(`/trucks/edit/${truck.id}`)}
                     style={{
                       padding: '8px 12px',
                       backgroundColor: '#f3f4f6',
@@ -473,9 +508,27 @@ const TruckList: React.FC = () => {
           <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#6b7280', margin: '0 0 8px 0' }}>
             No trucks found
           </h3>
-          <p style={{ fontSize: '14px', color: '#9ca3af', margin: '0' }}>
+          <p style={{ fontSize: '14px', color: '#9ca3af', margin: '0 0 16px 0' }}>
             Try adjusting your search or filter criteria
           </p>
+          <button
+            onClick={() => navigate('/trucks/new')}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '13px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
+          >
+            Add First Truck
+          </button>
         </div>
       )}
 

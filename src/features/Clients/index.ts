@@ -8,6 +8,9 @@ export { default as QuoteBuilder } from './components/QuoteBuilder';
 // Export pages
 export { default as ClientDashboard } from './pages/ClientDashboard';
 export { default as ClientDetails } from './pages/ClientDetails';
+export { default as ClientNew } from './pages/ClientNew';
+export { default as ClientEdit } from './pages/Clientedit';
+
 
 // Export hooks
 export { useClients, useClient } from './hooks/useClients.ts';

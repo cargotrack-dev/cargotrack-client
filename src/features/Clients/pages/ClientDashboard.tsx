@@ -2,7 +2,7 @@
 // 🎨 MODERN UI/UX - All Inline Styles, Zero Tailwind
 
 import React, { useState, useMemo } from 'react';
-import { Plus, Search, User } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // ==================== TYPES ====================
@@ -109,17 +109,40 @@ const ClientDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'active' | 'pending' | 'inactive'>('all');
   const navigate = useNavigate();
 
+  // Get all clients from mock data + localStorage
+  const getAllClients = useMemo(() => {
+    // Start with mock clients
+    let allClients = [...MOCK_CLIENTS];
+
+    // Add clients from localStorage
+    const localStorageClientsJSON = localStorage.getItem('cargotrack_clients');
+    if (localStorageClientsJSON) {
+      try {
+        const localStorageClients = JSON.parse(localStorageClientsJSON);
+        const newClients = Object.values(localStorageClients) as Client[];
+        // Filter out duplicates (by id)
+        const existingIds = new Set(allClients.map(c => c.id));
+        const uniqueNewClients = newClients.filter(c => !existingIds.has(c.id));
+        allClients = [...allClients, ...uniqueNewClients];
+      } catch (error) {
+        console.error('Error reading from localStorage:', error);
+      }
+    }
+
+    return allClients;
+  }, []);
+
   // Calculate statistics
   const stats = useMemo(() => ({
-    total: MOCK_CLIENTS.length,
-    active: MOCK_CLIENTS.filter(c => c.status === 'active').length,
-    pending: MOCK_CLIENTS.filter(c => c.status === 'pending').length,
-    inactive: MOCK_CLIENTS.filter(c => c.status === 'inactive').length
-  }), []);
+    total: getAllClients.length,
+    active: getAllClients.filter(c => c.status === 'active').length,
+    pending: getAllClients.filter(c => c.status === 'pending').length,
+    inactive: getAllClients.filter(c => c.status === 'inactive').length
+  }), [getAllClients]);
 
   // Filter clients
   const filteredClients = useMemo(() => {
-    return MOCK_CLIENTS.filter(client => {
+    return getAllClients.filter(client => {
       if (activeTab !== 'all' && client.status !== activeTab) return false;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
@@ -131,7 +154,7 @@ const ClientDashboard: React.FC = () => {
       }
       return true;
     });
-  }, [searchQuery, activeTab]);
+  }, [getAllClients, searchQuery, activeTab]);
 
   return (
     <div style={{

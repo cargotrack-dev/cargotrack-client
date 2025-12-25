@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { ArrowLeft, Edit2, Plus, Package, FileText } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 // ==================== TYPES ====================
 interface Address {
@@ -74,7 +74,30 @@ const TAB_LABELS: Record<string, string> = {
 const ClientDetails: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'shipments' | 'quotes' | 'invoices' | 'portal' | 'preferences'>('overview');
   const navigate = useNavigate();
-  const client = MOCK_CLIENT;
+  const { id } = useParams<{ id: string }>();
+
+  // Get client from localStorage first, then fall back to mock data
+  const getClient = () => {
+    // Try localStorage first
+    if (id) {
+      const localStorageClientsJSON = localStorage.getItem('cargotrack_clients');
+      if (localStorageClientsJSON) {
+        try {
+          const localStorageClients = JSON.parse(localStorageClientsJSON);
+          if (localStorageClients[id]) {
+            return localStorageClients[id];
+          }
+        } catch (error) {
+          console.error('Error reading from localStorage:', error);
+        }
+      }
+    }
+
+    // Fall back to mock data
+    return MOCK_CLIENT;
+  };
+
+  const client = getClient();
   const statusColor = STATUS_COLORS[client.status];
 
   const stats = useMemo(() => ({
