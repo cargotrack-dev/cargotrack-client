@@ -1,5 +1,10 @@
 // src/features/Core/components/AppSidebar.tsx
-// ✅ UPDATED: Correct badge counts for all menu items
+// ✅ SOLUTION 2: Maintenance submenu with multiple views
+// FEATURE: Collapsible Maintenance submenu with:
+//   - 📋 List (Modernized - default)
+//   - 📅 Scheduler
+//   - 📊 Dashboard
+//   - 📜 History
 
 import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -13,19 +18,19 @@ import {
   Settings,
   LogOut,
   ChevronDown,
-  Briefcase
+  Briefcase,
+  List,
+  Calendar,
+  LayoutGrid,
+  History
 } from 'lucide-react'
-
-interface AppSidebarProps {
-  isOpen?: boolean
-  onClose?: () => void
-}
 
 interface MenuItem {
   href: string
   label: string
   icon: React.ReactNode
   badge?: number
+  submenu?: MenuItem[] // ✅ NEW: Support for submenu
 }
 
 interface MenuSection {
@@ -33,20 +38,12 @@ interface MenuSection {
   items: MenuItem[]
 }
 
-/**
- * AppSidebar Component - UNIFIED VERSION
- * 
- * ✅ Single sidebar used across ENTIRE app
- * ✅ Expandable/collapsible sections
- * ✅ Professional inline styles
- * ✅ Consistent across all pages
- * ✅ No duplication, no conflicts
- * ✅ FIXED: All badge counts corrected!
- */
-const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen = true, onClose }) => {
+// ✅ FIXED: Removed unused AppSidebarProps interface and its props
+const AppSidebar: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const [expandedSections, setExpandedSections] = useState<string[]>(['overview', 'operations'])
+  const [expandedSections, setExpandedSections] = useState<string[]>(['overview', 'operations', 'management'])
+  const [expandedSubmenus, setExpandedSubmenus] = useState<string[]>(['maintenance']) // ✅ NEW: Track expanded submenus
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev =>
@@ -56,15 +53,24 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen = true, onClose }) => {
     )
   }
 
-  const isActive = (href: string) => location.pathname === href
+  // ✅ NEW: Toggle submenu
+  const toggleSubmenu = (itemLabel: string) => {
+    setExpandedSubmenus(prev =>
+      prev.includes(itemLabel)
+        ? prev.filter(s => s !== itemLabel)
+        : [...prev, itemLabel]
+    )
+  }
 
-  // Menu structure with professional lucide icons
+  const isActive = (href: string) => location.pathname === href || location.pathname.startsWith(href + '/')
+
+  // ✅ Menu structure with submenu for Maintenance
   const menuSections: MenuSection[] = [
     {
       title: 'OVERVIEW',
       items: [
-        { href: '/dashboard', label: 'Dashboard', icon: <Home size={16} />, badge: 0 },
-        { href: '/analytics', label: 'Analytics', icon: <BarChart3 size={16} />, badge: 0 }
+        { href: '/dashboard', label: 'Dashboard', icon: <Home size={16} /> },
+        { href: '/analytics', label: 'Analytics', icon: <BarChart3 size={16} /> }
       ]
     },
     {
@@ -72,17 +78,29 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen = true, onClose }) => {
       items: [
         { href: '/shipments', label: 'Shipments', icon: <Package size={16} />, badge: 5 },
         { href: '/trucks', label: 'Trucks', icon: <Truck size={16} />, badge: 2 },
-        { href: '/drivers', label: 'Drivers', icon: <Users size={16} />, badge: 6 },           // ✅ FIXED: 0 → 6
-        { href: '/tracking', label: 'Real-Time Tracking', icon: <MapPin size={16} />, badge: 6 }  // ✅ FIXED: 0 → 6
+        { href: '/drivers', label: 'Drivers', icon: <Users size={16} />, badge: 6 },
+        { href: '/tracking', label: 'Real-Time Tracking', icon: <MapPin size={16} />, badge: 6 }
       ]
     },
     {
       title: 'MANAGEMENT',
       items: [
-        { href: '/clients', label: 'Clients', icon: <Briefcase size={16} />, badge: 8 },     // ✅ FIXED: 0 → 8
+        { href: '/clients', label: 'Clients', icon: <Briefcase size={16} />, badge: 8 },
         { href: '/invoices', label: 'Invoices', icon: <Package size={16} />, badge: 3 },
-        { href: '/maintenance', label: 'Maintenance', icon: <Truck size={16} />, badge: 4 }, // ✅ FIXED: 0 → 4
-        { href: '/settings', label: 'Settings', icon: <Settings size={16} />, badge: 0 }
+        // ✅ NEW: Maintenance with submenu
+        {
+          href: '/maintenance',
+          label: 'Maintenance',
+          icon: <Truck size={16} />,
+          badge: 4,
+          submenu: [
+            { href: '/maintenance/list', label: 'List', icon: <List size={14} />, badge: 4 },
+            { href: '/maintenance/scheduler', label: 'Scheduler', icon: <Calendar size={14} />, badge: 1 },
+            { href: '/maintenance', label: 'Dashboard', icon: <LayoutGrid size={14} />, badge: 2 },
+            { href: '/maintenance/history', label: 'History', icon: <History size={14} />, badge: 1 }
+          ]
+        },
+        { href: '/settings', label: 'Settings', icon: <Settings size={16} /> }
       ]
     }
   ]
@@ -96,7 +114,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen = true, onClose }) => {
     height: '100vh',
     boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)',
     position: 'relative',
-    flexShrink: 0 // ✅ IMPORTANT: Prevents sidebar from shrinking
+    flexShrink: 0
   }
 
   return (
@@ -128,7 +146,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen = true, onClose }) => {
             (e.currentTarget as HTMLElement).style.background = 'transparent'
           }}
         >
-          {/* Logo Icon */}
           <div
             style={{
               width: '36px',
@@ -145,7 +162,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen = true, onClose }) => {
             🚛
           </div>
 
-          {/* Text */}
           <div style={{ minWidth: 0 }}>
             <div
               style={{
@@ -189,6 +205,8 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen = true, onClose }) => {
             section={section}
             isExpanded={expandedSections.includes(section.title.toLowerCase())}
             onToggle={() => toggleSection(section.title.toLowerCase())}
+            expandedSubmenus={expandedSubmenus}
+            onToggleSubmenu={toggleSubmenu}
             isActive={isActive}
             navigate={navigate}
           />
@@ -203,7 +221,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen = true, onClose }) => {
           flexShrink: 0
         }}
       >
-        {/* User Info Card */}
         <div
           style={{
             display: 'flex',
@@ -247,7 +264,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen = true, onClose }) => {
           </div>
         </div>
 
-        {/* Logout Button */}
         <button
           onClick={() => navigate('/')}
           style={{
@@ -283,11 +299,13 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ isOpen = true, onClose }) => {
   )
 }
 
-// MENU SECTION COMPONENT
+// MENU SECTION COMPONENT - ✅ UPDATED with submenu support
 interface MenuSectionProps {
   section: MenuSection
   isExpanded: boolean
   onToggle: () => void
+  expandedSubmenus: string[]
+  onToggleSubmenu: (label: string) => void
   isActive: (href: string) => boolean
   navigate: (path: string) => void
 }
@@ -296,11 +314,12 @@ const MenuSection: React.FC<MenuSectionProps> = ({
   section,
   isExpanded,
   onToggle,
+  expandedSubmenus,
+  onToggleSubmenu,
   isActive,
   navigate
 }) => (
   <div style={{ marginBottom: '8px' }}>
-    {/* Section Header */}
     <button
       onClick={onToggle}
       style={{
@@ -335,89 +354,170 @@ const MenuSection: React.FC<MenuSectionProps> = ({
       />
     </button>
 
-    {/* Menu Items */}
     {isExpanded && (
       <div style={{ paddingBottom: '8px' }}>
         {section.items.map((item) => (
-          <button
-            key={item.href}
-            onClick={() => navigate(item.href)}
-            style={{
-              width: '100%',
-              padding: '10px 20px',
-              background: isActive(item.href) ? 'rgba(255, 255, 255, 0.15)' : 'none',
-              border: 'none',
-              color: isActive(item.href) ? 'white' : 'rgba(255, 255, 255, 0.7)',
-              fontSize: '13px',
-              fontWeight: isActive(item.href) ? '600' : '500',
-              textAlign: 'left',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              transition: 'all 0.2s',
-              position: 'relative'
-            }}
-            onMouseEnter={(e) => {
-              if (!isActive(item.href)) {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
-                e.currentTarget.style.color = 'white'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isActive(item.href)) {
-                e.currentTarget.style.background = 'none'
-                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)'
-              }
-            }}
-          >
-            {/* Icon */}
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {item.icon}
-            </span>
-
-            {/* Label */}
-            <span style={{ flex: 1 }}>{item.label}</span>
-
-            {/* Badge - RED with pulsing animation */}
-            {item.badge && item.badge > 0 && (
-              <span
-                style={{
-                  background: '#ef4444',
-                  color: 'white',
-                  borderRadius: '50%',
-                  width: '20px',
-                  height: '20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '10px',
-                  fontWeight: '700',
-                  flexShrink: 0,
-                  boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)',
-                  animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                }}
-              >
-                {item.badge}
+          <div key={item.href}>
+            {/* Main Menu Item */}
+            <button
+              onClick={() => {
+                // ✅ If item has submenu, toggle it; otherwise navigate
+                if (item.submenu) {
+                  onToggleSubmenu(item.label)
+                } else {
+                  navigate(item.href)
+                }
+              }}
+              style={{
+                width: '100%',
+                padding: '10px 20px',
+                background: isActive(item.href) ? 'rgba(255, 255, 255, 0.15)' : 'none',
+                border: 'none',
+                color: isActive(item.href) ? 'white' : 'rgba(255, 255, 255, 0.7)',
+                fontSize: '13px',
+                fontWeight: isActive(item.href) ? '600' : '500',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'all 0.2s',
+                position: 'relative'
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive(item.href)) {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
+                  e.currentTarget.style.color = 'white'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive(item.href)) {
+                  e.currentTarget.style.background = 'none'
+                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)'
+                }
+              }}
+            >
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {item.icon}
               </span>
-            )}
 
-            {/* Active Indicator */}
-            {isActive(item.href) && (
-              <div
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  width: '3px',
-                  height: '24px',
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  borderRadius: '0 2px 2px 0'
-                }}
-              />
+              <span style={{ flex: 1 }}>{item.label}</span>
+
+              {/* Badge */}
+              {item.badge && item.badge > 0 && (
+                <span
+                  style={{
+                    background: '#ef4444',
+                    color: 'white',
+                    borderRadius: '50%',
+                    width: '20px',
+                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '10px',
+                    fontWeight: '700',
+                    flexShrink: 0,
+                    boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)',
+                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                  }}
+                >
+                  {item.badge}
+                </span>
+              )}
+
+              {/* ✅ NEW: Submenu chevron if item has submenu */}
+              {item.submenu && (
+                <ChevronDown
+                  size={14}
+                  style={{
+                    transition: 'transform 0.2s',
+                    transform: expandedSubmenus.includes(item.label) ? 'rotate(180deg)' : 'rotate(0deg)',
+                    marginLeft: 'auto'
+                  }}
+                />
+              )}
+
+              {/* Active Indicator */}
+              {isActive(item.href) && !item.submenu && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: '3px',
+                    height: '24px',
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    borderRadius: '0 2px 2px 0'
+                  }}
+                />
+              )}
+            </button>
+
+            {/* ✅ NEW: Submenu Items */}
+            {item.submenu && expandedSubmenus.includes(item.label) && (
+              <div style={{ paddingLeft: '12px', paddingBottom: '4px' }}>
+                {item.submenu.map((subitem) => (
+                  <button
+                    key={subitem.href}
+                    onClick={() => navigate(subitem.href)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 20px',
+                      background: isActive(subitem.href) ? 'rgba(255, 255, 255, 0.12)' : 'none',
+                      border: 'none',
+                      color: isActive(subitem.href) ? 'white' : 'rgba(255, 255, 255, 0.6)',
+                      fontSize: '12px',
+                      fontWeight: isActive(subitem.href) ? '600' : '500',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s',
+                      position: 'relative',
+                      marginBottom: '2px',
+                      borderRadius: '4px'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive(subitem.href)) {
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'
+                        e.currentTarget.style.color = 'rgba(255, 255, 255, 0.9)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive(subitem.href)) {
+                        e.currentTarget.style.background = 'none'
+                        e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)'
+                      }
+                    }}
+                  >
+                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {subitem.icon}
+                    </span>
+                    <span>{subitem.label}</span>
+
+                    {/* Active Indicator for Submenu */}
+                    {isActive(subitem.href) && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: 0,
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          width: '2px',
+                          height: '16px',
+                          background: 'rgba(255, 255, 255, 0.7)',
+                          borderRadius: '0 1px 1px 0'
+                        }}
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
             )}
-          </button>
+          </div>
         ))}
       </div>
     )}
@@ -425,18 +525,3 @@ const MenuSection: React.FC<MenuSectionProps> = ({
 )
 
 export default AppSidebar
-
-// ============================================================
-// CSS ANIMATION FOR BADGES
-// ============================================================
-// Add this to your global styles or component styles:
-/*
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-*/

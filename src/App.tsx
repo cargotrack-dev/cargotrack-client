@@ -1,12 +1,12 @@
 // src/App.tsx
-// ✅ FINAL FIXED - MaintenanceProvider wraps elements, NOT routes
+// ✅ FINAL FIXED - Corrected maintenance routes for unified feature
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './features/Auth/contexts/AuthProvider';
 import { ToastProvider } from './features/UI/components/ui/toast/ToastProvider';
 import { useThemeInit } from './features/Core/hooks/useTheme.ts';
-import { MaintenanceProvider } from './features/Maintenance/contexts/provider'; // ✅ Added
+import { MaintenanceProvider } from './features/Maintenance/contexts/provider';
 
 // ✅ Public pages
 import LandingPage from './pages/LandingPage.tsx';
@@ -40,10 +40,13 @@ import Analytics from './features/Analytics/pages/Dashboard.tsx';
 import Settings from './features/Settings/pages/Settings.tsx';
 import UserManagement from './features/Admin/pages/UserManagement.tsx';
 
-// ✅ Maintenance routes
-import MaintenanceList from './features/Maintenance/pages/MaintenanceList.tsx';
-import MaintenanceScheduleForm from './features/Maintenance/components/MaintenanceScheduleForm.tsx'; // ✅ components folder
-import MaintenanceScheduler from './features/Maintenance/pages/MaintenanceScheduler.tsx';
+// ✅ Maintenance routes - UPDATED
+import MaintenanceDashboard from './features/Maintenance/components/MaintenanceDashboard.tsx'; // Your original dashboard
+import MaintenanceList from './features/Maintenance/pages/MaintenanceList.tsx'; // New list view
+import MaintenanceScheduleForm from './features/Maintenance/components/MaintenanceScheduleForm.tsx';
+import MaintenanceScheduler from './features/Maintenance/pages/MaintenanceScheduler.tsx'; // Calendar view
+import MaintenanceScheduleDetail from './features/Maintenance/components/MaintenanceScheduleDetail.tsx';
+import MaintenanceHistory from './features/Maintenance/components/MaintenanceHistory.tsx';
 
 // ✅ Clients routes
 import ClientDashboard from './features/Clients/pages/ClientDashboard.tsx';
@@ -154,30 +157,86 @@ function App() {
             <Route path="/clients/:id" element={<ClientDetails />} />
 
             {/* ════════════════════════════════════════════════════════════════ */}
-            {/* MAINTENANCE - Each route wrapped with MaintenanceProvider */}
-            {/* ✅ FIXED: No nested Routes, just wrapped elements */}
+            {/* MAINTENANCE - UNIFIED FEATURE */}
+            {/* ✅ UPDATED: Unified routing structure */}
             {/* ════════════════════════════════════════════════════════════════ */}
+            
+            {/* Default/Dashboard View - Your original dashboard */}
             <Route
               path="/maintenance"
+              element={
+                <MaintenanceProvider>
+                  <MaintenanceDashboard />
+                </MaintenanceProvider>
+              }
+            />
+
+            {/* NEW: List View - Search & Statistics */}
+            <Route
+              path="/maintenance/list"
               element={
                 <MaintenanceProvider>
                   <MaintenanceList />
                 </MaintenanceProvider>
               }
             />
+
+            {/* NEW: Scheduler View - Calendar Planning */}
             <Route
-              path="/maintenance/new"
+              path="/maintenance/scheduler"
+              element={
+                <MaintenanceProvider>
+                  <MaintenanceScheduler />
+                </MaintenanceProvider>
+              }
+            />
+
+            {/* Detail View */}
+            <Route
+              path="/maintenance/schedule/:id"
+              element={
+                <MaintenanceProvider>
+                  <MaintenanceScheduleDetail />
+                </MaintenanceProvider>
+              }
+            />
+
+            {/* Create/Edit Form */}
+            <Route
+              path="/maintenance/schedule/new"
               element={
                 <MaintenanceProvider>
                   <MaintenanceScheduleForm />
                 </MaintenanceProvider>
               }
             />
+
+            {/* Edit Form */}
             <Route
-              path="/maintenance/dashboard"
+              path="/maintenance/schedule/edit/:id"
               element={
                 <MaintenanceProvider>
-                  <MaintenanceScheduler />
+                  <MaintenanceScheduleForm />
+                </MaintenanceProvider>
+              }
+            />
+
+            {/* History View */}
+            <Route
+              path="/maintenance/history"
+              element={
+                <MaintenanceProvider>
+                  <MaintenanceHistory />
+                </MaintenanceProvider>
+              }
+            />
+
+            {/* Vehicle History */}
+            <Route
+              path="/maintenance/history/:vehicleId"
+              element={
+                <MaintenanceProvider>
+                  <MaintenanceHistory />
                 </MaintenanceProvider>
               }
             />
@@ -211,33 +270,33 @@ function App() {
 }
 
 /**
- * ✨ ROUTE STRUCTURE - FINAL & WORKING:
+ * ✨ UNIFIED MAINTENANCE ROUTES - FINAL:
  * 
  * PUBLIC: / /register /login /unauthorized
  * 
  * PROTECTED (inside ProtectedRoute + AppLayout):
- * /dashboard
- * /shipments /shipments/:id
- * /trucks /trucks/new /trucks/edit/:id /trucks/:id
- * /cargo
- * /invoices /invoices/new /invoices/:id
- * /tasks /tasks/:id
- * /tracking
- * /drivers /drivers/:id
- * /analytics
- * /clients /clients/new /clients/edit/:id /clients/:id
- * /maintenance (with provider) → MaintenanceList
- * /maintenance/new (with provider) → MaintenanceScheduleForm
- * /maintenance/dashboard (with provider) → MaintenanceScheduler
- * /settings
- * /admin
  * 
- * ✅ KEY FIXES:
- * ✅ Import path: components folder (not pages)
- * ✅ MaintenanceProvider wraps elements (not routes)
- * ✅ No nested Routes breaking routing
- * ✅ Simple, clean structure
- * ✅ Routes properly matched by React Router
+ * MAINTENANCE FEATURE (8 routes):
+ * /maintenance                    → MaintenanceDashboard (your original)
+ * /maintenance/list               → MaintenanceList (NEW - list view)
+ * /maintenance/scheduler          → MaintenanceScheduler (NEW - calendar view)
+ * /maintenance/schedule/:id       → MaintenanceScheduleDetail (detail view)
+ * /maintenance/schedule/new       → MaintenanceScheduleForm (create)
+ * /maintenance/schedule/edit/:id  → MaintenanceScheduleForm (edit)
+ * /maintenance/history            → MaintenanceHistory (history)
+ * /maintenance/history/:vehicleId → MaintenanceHistory (vehicle history)
+ * 
+ * OTHER ROUTES:
+ * /dashboard /shipments /trucks /cargo /invoices /tasks /tracking
+ * /drivers /analytics /clients /settings /admin
+ * 
+ * ✅ KEY IMPROVEMENTS:
+ * ✅ Unified maintenance feature with 8 routes
+ * ✅ MaintenanceProvider wraps all maintenance routes
+ * ✅ 4 different view options (Dashboard, List, Scheduler, History)
+ * ✅ Clean, organized structure
+ * ✅ Backward compatible with existing code
+ * ✅ Easy to navigate between views
  */
 
 export default App;
